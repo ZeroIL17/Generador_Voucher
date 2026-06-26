@@ -1,6 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
-using GeneradorVoucher.Properties;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -9,7 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using static GeneradorVoucher.PagActividad;
 using Colors = QuestPDF.Helpers.Colors;
 
 namespace GeneradorVoucher
@@ -32,8 +30,8 @@ namespace GeneradorVoucher
             string logo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo_caminandes.png");
 
             // Calcular el total general sumando el valor base más los subtotales de las actividades
-            double totalActividades = actividades.Sum(a => (a.precioEntrada + a.precioTour));
-            double granTotal = totalActividades * Convert.ToInt32(datosClientes.cantidadCliente);
+            //double totalActividades = actividades.Sum(a => (a.precioEntrada + a.precioTour));
+           // double granTotal = totalActividades * Convert.ToInt32(datosClientes.cantidadCliente);
 
             // 2. Construcción del documento con la sintaxis fluida de QuestPDF
             Document.Create(container =>
@@ -132,13 +130,13 @@ namespace GeneradorVoucher
                             // Filas de datos
                             foreach (var actividad in actividades)
                             {
-                                table.Cell().Padding(5).Text($"{actividad.fechaActividad}");
-                                table.Cell().Padding(5).Text($"{actividad.tipoActividad}");
-                                table.Cell().Padding(5).Text($"{actividad.pickupActividad}");
-                                table.Cell().Padding(5).Text($"{actividad.regresoActividad}");
-                                table.Cell().Padding(5).Text($"{actividad.servicioActividad}");
-                                table.Cell().Padding(5).AlignRight().Text($"${actividad.precioEntrada:N0}");
-                                table.Cell().Padding(5).AlignRight().Text($"${actividad.precioTour:N0}");
+                               // table.Cell().Padding(5).Text($"{actividad.fechaActividad}");
+                               // table.Cell().Padding(5).Text($"{actividad.tipoActividad}");
+                               // table.Cell().Padding(5).Text($"{actividad.pickupActividad}");
+                               // table.Cell().Padding(5).Text($"{actividad.regresoActividad}");
+                               // table.Cell().Padding(5).Text($"{actividad.servicioActividad}");
+                                //table.Cell().Padding(5).AlignRight().Text($"${actividad.precioEntrada:N0}");
+                                //table.Cell().Padding(5).AlignRight().Text($"${actividad.precioTour:N0}");
                             }
                         });
 
@@ -148,13 +146,13 @@ namespace GeneradorVoucher
                             resumen.Item().Row(r =>
                             {
                                 r.RelativeItem().Text("Valor Base Cliente:");
-                                r.ConstantItem(80).AlignRight().Text($"${totalActividades:N0}");
+                                //r.ConstantItem(80).AlignRight().Text($"${totalActividades:N0}");
                             });
 
                             resumen.Item().PaddingTop(5).BorderTop(1).BorderColor(Colors.Grey.Darken1).Row(r =>
                             {
                                 r.RelativeItem().Text("TOTAL GENERAL:").Bold().FontColor(Colors.Blue.Darken3);
-                                r.ConstantItem(80).AlignRight().Text($"${granTotal:N0}").Bold().FontColor(Colors.Blue.Darken3);
+                              //  r.ConstantItem(80).AlignRight().Text($"${granTotal:N0}").Bold().FontColor(Colors.Blue.Darken3);
                             });
                         });
                     });
@@ -170,16 +168,19 @@ namespace GeneradorVoucher
             }).GeneratePdf(rutaPdf); // Compila y escribe el archivo en disco
 
             // 3. Notificar al usuario y preguntar si desea abrirlo
-            var resultado = MessageBox.Show($"¡PDF '{nombreArchivo}' generado con éxito!\n\n¿Desea abrir el archivo ahora?",
-                                            "PDF Creado", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            //var resultado = MessageBox.Show($"¡PDF '{nombreArchivo}' generado con éxito!\n\n¿Desea abrir el archivo ahora?",
+             //                               "PDF Creado", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 
-            if (resultado == DialogResult.Yes)
-            {
+           // if (resultado == DialogResult.Yes)
+            //{
                 // Abre el lector de PDFs predeterminado del sistema operativo
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaPdf) { UseShellExecute = true });
-            }
+              //  System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaPdf) { UseShellExecute = true });
+           // }
         }
 
     }
 
+    public class datosActividad
+    {
+    }
 }

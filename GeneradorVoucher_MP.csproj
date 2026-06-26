@@ -29,5 +29,8 @@
     <Compile Update="PagCliente.axaml.cs">
       <DependentUpon>PagCliente.axaml</DependentUpon>
     </Compile>
+    <Compile Update="PagActividad.axaml.cs">
+      <DependentUpon>PagActividad.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
