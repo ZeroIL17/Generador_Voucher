@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using GeneradorVoucher_MP.Views;
 using System;
 
 namespace AvaloniaApplication1

@@ -5,9 +5,10 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using AvaloniaApplication1.ViewModels;
 using AvaloniaApplication1.Views;
+using QuestPDF.Infrastructure;
 using System.Linq;
 
-namespace AvaloniaApplication1
+namespace GeneradorVoucher_MP.Views
 {
     public partial class App : Application
     {
@@ -20,6 +21,7 @@ namespace AvaloniaApplication1
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                QuestPDF.Settings.License = LicenseType.Community;
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),

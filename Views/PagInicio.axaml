@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.PagInicio">
+
+    <Panel>
+
+        <!-- Fondo -->
+        <Image Source="avares://GeneradorVoucher_MP/Assets/fondo_inicio.jpg"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" />
+
+        <!-- Capa oscura para legibilidad -->
+        <Border Background="#60000000" />
+
+        <!-- Contenido -->
+        <Grid RowDefinitions="*, Auto">
+
+            <!-- Logo centrado verticalmente en el espacio superior -->
+            <Image Grid.Row="0"
+                   Source="avares://GeneradorVoucher_MP/Assets/logo_caminandes_2.png"
+                   Stretch="Uniform"
+                   MaxHeight="300"
+                   MaxWidth="600"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+
+            <!-- Barra inferior: usuario izquierda, botón derecha -->
+            <Border Grid.Row="1"
+                    Background="#20000000"
+                    Padding="40,60">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- IZQUIERDA: usuario -->
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Center">
+
+                        <TextBlock Text="Usuario"
+                                   FontSize="13"
+                                   Foreground="White"
+                                   VerticalAlignment="Center" />
+
+                        <AutoCompleteBox Name="cmbSelectUsuario"
+                                         Width="220"
+                                         MinimumPrefixLength="1"
+                                         IsTabStop="True"
+                                         Background="White"
+                                         VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- DERECHA: botón -->
+                    <Button Grid.Column="2"
+                            Name="btnPagCliente"
+                            Height="40"
+                            Background="White"
+                            Foreground="#222222"
+                            Click="btnPagCliente_Click"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Iniciar nueva aventura"
+                                       VerticalAlignment="Center"
+                                       FontFamily="s"/>
+                            <PathIcon Data="{StaticResource airplane_regular}"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Panel>
+
+</UserControl>

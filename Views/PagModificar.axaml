@@ -1,0 +1,232 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:GeneradorVoucher_MP"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:GeneradorVoucher_MP.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.PagModificar"
+             x:DataType="local:PagModificar">
+    <Panel>
+        <Image Source="avares://GeneradorVoucher_MP/Assets/foto_mano.jpg"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" />
+
+        <Border Background="#60000000" />
+
+        <Border VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                Margin="30"
+                Background="#F0F4F8"
+                CornerRadius="10">
+            <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
+
+                <!-- Encabezado azul -->
+                <Border Grid.Row="0"
+                        Background="#1F4E78"
+                        CornerRadius="10,10,0,0"
+                        Padding="20,14">
+                    <TextBlock Text="Modificar voucher"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White" />
+                </Border>
+
+                <!-- Selector de voucher -->
+                <Border Grid.Row="1"
+                        BorderThickness="0,0,0,1"
+                        BorderBrush="#DDDDDD"
+                        Padding="20,12">
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="Voucher"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center" />
+                        <AutoCompleteBox Name="cmbVoucherCreados"
+                                         PlaceholderText="Seleccionar ID"
+                                         Width="320"
+                                         MinimumPrefixLength="1"
+                                         FilterMode="ContainsOrdinal"
+                                         SelectionChanged="cmbVoucherCreados_SelectionChanged"
+                                         ItemsSource="{Binding VouchersDisponibles}"
+                                         ValueMemberBinding="{Binding DisplayText}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Formulario 2 columnas -->
+                <Grid Grid.Row="2"
+                      ColumnDefinitions="*, *"
+                      Margin="0,0,0,0">
+
+                    <!-- Izquierda: datos del cliente -->
+                    <Border Grid.Column="0"
+                            BorderThickness="0,0,1,0"
+                            BorderBrush="#DDDDDD"
+                            Padding="20,16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Datos del cliente"
+                                       FontSize="11"
+                                       Foreground="#999999"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Nombre cliente" FontSize="11" Foreground="#666666" />
+                                <TextBox Name="textNombreClienteModificar" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="Adultos" FontSize="11" Foreground="#666666" />
+                                    <NumericUpDown Name="textAdultosModificar"
+                                                   Minimum="1" FormatString="N0"
+                                                   HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="Niños" FontSize="11" Foreground="#666666" />
+                                    <NumericUpDown Name="textNinosModificar"
+                                                   Minimum="0" FormatString="N0"
+                                                   HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Nueva actividad" FontSize="11" Foreground="#666666" />
+                                <AutoCompleteBox Name="cmbTourServicioActividadModificar"
+                                                 MinimumPrefixLength="1"
+                                                 FilterMode="ContainsOrdinal"
+                                                 SelectionChanged="cmbTourServicioActividadModificar_SelectionChanged"
+                                                 ItemsSource="{Binding CatalogoOpciones}"
+                                                 ValueMemberBinding="{Binding tour}"
+                                                 HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Derecha: datos del viaje -->
+                    <Border Grid.Column="1" Padding="20,16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Datos del viaje"
+                                       FontSize="11"
+                                       Foreground="#999999"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Inicio de actividades" FontSize="11" Foreground="#666666" />
+                                <CalendarDatePicker Name="textFechaInicioModificar"
+                                                    IsDropDownOpen="False"
+                                                    IsTodayHighlighted="True"
+                                                    HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Teléfono de contacto" FontSize="11" Foreground="#666666" />
+                                <TextBox Name="textTelefonoModificar" HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- DataGrid de actividades -->
+                <Border Grid.Row="3"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="#DDDDDD"
+                        Padding="16,12">
+                    <Grid RowDefinitions="Auto, *">
+                        <TextBlock Grid.Row="0"
+                                   Text="Actividades — presiona Supr para eliminar una fila"
+                                   FontSize="11"
+                                   Foreground="#999999"
+                                   Margin="0,0,0,8" />
+                        <DataGrid Grid.Row="1"
+                                  Name="dgvActividadesMostradas"
+                                  IsReadOnly="False"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="1"
+                                  BorderBrush="#DDDDDD"
+                                  AutoGenerateColumns="False"
+                                  CanUserReorderColumns="False"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  KeyDown="dgvActividadesMostradas_KeyDown"
+                                  ItemsSource="{Binding DatosActividades}"
+                                  >
+                            <DataGrid.Styles>
+                                <Style Selector="DataGridColumnHeader">
+                                    <Setter Property="FontSize" Value="11" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="Background" Value="#1F4E78" />
+                                    <Setter Property="Foreground" Value="White" />
+                                </Style>
+                            </DataGrid.Styles>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Fecha" Width="140">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding fechaActividad, StringFormat=\{0:dd-MM-yyyy\}}" 
+                                                       VerticalAlignment="Center" 
+                                                       HorizontalAlignment="Center" 
+                                                       Margin="5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <CalendarDatePicker SelectedDate="{Binding fechaActividad, Mode=TwoWay}"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Center"
+                                                                SelectedDateFormat="Custom"
+                                                                CustomDateFormatString="dd-MM-yyyy" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Tour"
+                                                    Binding="{Binding tipoActividad}"
+                                                    MaxWidth="250" />
+                                <DataGridTextColumn Header="Pick Up"
+                                                    Binding="{Binding pickupActividad}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Regreso"
+                                                    Binding="{Binding regresoActividad}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Incluye"
+                                                    Binding="{Binding incluyeActividad}"
+                                                    MaxWidth="200" />
+                                <DataGridTextColumn Header="Entrada"
+                                                    Binding="{Binding precioEntrada, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Precio Adulto"
+                                                    Binding="{Binding precioTourAdulto, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Precio Niño"
+                                                    Binding="{Binding precioTourNino, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <!-- Botones -->
+                <Border Grid.Row="4"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="#DDDDDD"
+                        Padding="20,12">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Name="btnVolverPagCliente"
+                                Content="← Volver"
+                                Click="btnVolverPagCliente_Click" />
+                        <Button Grid.Column="3"
+                                Name="btnActualizarVoucher"
+                                Content="Actualizar voucher →"
+                                Background="#1F4E78"
+                                Foreground="White"
+                                Click="btnActualizarVoucher_Click" />
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Panel>
+</UserControl>

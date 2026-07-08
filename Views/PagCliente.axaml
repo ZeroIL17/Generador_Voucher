@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.PagCliente">
+    <Panel>
+
+        <!-- Fondo -->
+        <Image Source="avares://GeneradorVoucher_MP/Assets/foto_mar_personas.jpg"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" />
+        <Border Background="#60000000" />
+
+        <!-- Contenido centrado -->
+        <Border VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="#F0F4F8"
+                CornerRadius="10"
+                Width="520">
+
+            <StackPanel>
+
+                <!-- Encabezado -->
+                <Border Background="#1F4E78"
+                        CornerRadius="10,10,0,0"
+                        Padding="20,14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Grid.Column="0"
+                                   Text="Registro cliente"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="White"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1"
+                                   Name="labelUsuario"
+                                   FontSize="12"
+                                   Foreground="#AAC8E8"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Formulario: 2 columnas -->
+                <Grid ColumnDefinitions="*, *" Margin="20,20,20,10" ColumnSpacing="20">
+
+                    <!-- Columna izquierda -->
+                    <StackPanel Grid.Column="0" Spacing="12">
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Nombre cliente" FontSize="11" Foreground="#666666" />
+                            <TextBox Name="textNombreCliente" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Teléfono de contacto" FontSize="11" Foreground="#666666" />
+                            <TextBox Name="textTelefonoContacto" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Inicio de actividades" FontSize="11" Foreground="#666666" />
+                            <CalendarDatePicker Name="textFechaInicioActividades"
+                                               IsDropDownOpen="False"
+                                               IsTodayHighlighted="True"
+                                               HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <!-- Columna derecha -->
+                    <StackPanel Grid.Column="1" Spacing="12">
+
+                        <TextBlock Text="Pasajeros" FontSize="11" Foreground="#666666" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Adultos" FontSize="11" Foreground="#999999" />
+                            <NumericUpDown Name="textPasajerosAdultos"
+                                          Minimum="1"
+                                          FormatString="N0"
+                                          HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Niños" FontSize="11" Foreground="#999999" />
+                            <NumericUpDown Name="textPasajerosNinos"
+                                          Minimum="0"
+                                          FormatString="N0"
+                                          HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </Grid>
+
+                <!-- Botones -->
+                <Border BorderThickness="0,1,0,0"
+                        BorderBrush="#DDDDDD"
+                        Margin="0,10,0,0"
+                        Padding="20,14">
+                    <Grid ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="10">
+                        <StackPanel Grid.Column="0" /> <!-- espaciador -->
+
+                        <Button Grid.Column="1"
+                                Name="btnRegistros"
+                                Content="Ver registros"
+                                Click="btnRegistros_Click" />
+
+                        <Button Grid.Column="2"
+                                Name="btnModificarPag"
+                                Content="Modificar"
+                                Click="btnModificarPag_Click" />
+
+                        <Button Grid.Column="3"
+                                Name="btnIngresarDatos"
+                                Content="Ingresar actividades →"
+                                Background="#1F4E78"
+                                Foreground="White"
+                                Click="btnAgregarCliente_Click" />
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </Border>
+
+    </Panel>
+</UserControl>

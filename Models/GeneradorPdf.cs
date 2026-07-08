@@ -1,20 +1,27 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using Avalonia;
+using Avalonia.Controls;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
+using GeneradorVoucher_MP;
+using GeneradorVoucher_MP.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Colors = QuestPDF.Helpers.Colors;
+using IContainer = QuestPDF.Infrastructure.IContainer;
 
 namespace GeneradorVoucher
 {
     public static class GeneradorPdf
     {
-        public static void GenerarReportePDF(int IdActividad, dynamic datosClientes, BindingList<datosActividad> actividades)
+        public static async Task GenerarReportePDF(int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, Visual visualOrigen)
         {
             // 1. Definir la ruta de guardado del PDF (Misma carpeta del programa)
             string nombreArchivo = $"Itinerario_Cliente_{IdActividad}.pdf";
@@ -28,10 +35,13 @@ namespace GeneradorVoucher
 
             string rutaPdf = Path.Combine(carpetaPdf, nombreArchivo);
             string logo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo_caminandes.png");
+            string fondoPie = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "imagen_pie_pdf.png");
 
             // Calcular el total general sumando el valor base más los subtotales de las actividades
-            //double totalActividades = actividades.Sum(a => (a.precioEntrada + a.precioTour));
-           // double granTotal = totalActividades * Convert.ToInt32(datosClientes.cantidadCliente);
+            int totalPasajeros = (int)datosClientes.CantidadAdultosCliente + (int)datosClientes.CantidadNinosCliente;
+            double totalEntrada = actividades.Sum(a => a.precioEntrada * totalPasajeros);
+            double totalTour = actividades.Sum(a => (int)datosClientes.CantidadAdultosCliente * a.precioTourAdulto + (int)datosClientes.CantidadNinosCliente * a.precioTourNino);
+            double granTotal = totalEntrada + totalTour;
 
             // 2. Construcción del documento con la sintaxis fluida de QuestPDF
             Document.Create(container =>
@@ -41,28 +51,28 @@ namespace GeneradorVoucher
                     // Configuración de la página (Márgenes y Tamaño A4)
                     page.Size(PageSizes.Letter);
                     page.Margin(0, Unit.Centimetre);
-                    page.PageColor(Colors.White);
+                    page.PageColor("#F0F8FB");
                     page.DefaultTextStyle(x => x.FontSize(11).FontColor(Colors.Grey.Darken3));
 
                     // --- SECCIÓN 1: ENCABEZADO ---
-                    page.Header().Background("#053559").Padding(15).Row(row =>
+                    page.Header().BackgroundLinearGradient(90, ["#053559", "#1F4E78"]).Padding(15).Row(row =>
                     {
                         row.ConstantItem(120).Image(logo);
                         row.RelativeItem();
 
-                        row.ConstantItem(220).AlignMiddle().Column(col =>
+                        row.ConstantItem(250).AlignMiddle().Column(col =>
                         {
                             col.Item().Text("Calle Caracoles 66, San Pedro de Atacama, Chile")
-                                .FontSize(10)
+                                .FontSize(11)
                                 .FontColor(Colors.White)
                                 .SemiBold();
 
                             col.Item().Text("reservas@caminandesagencia.com")
-                                .FontSize(10)
+                                .FontSize(11)
                                 .FontColor(Colors.White);
 
                             col.Item().Text("+56 9 51759544")
-                                .FontSize(10)
+                                .FontSize(11)
                                 .FontColor(Colors.White);
                         });
                     });
@@ -71,28 +81,36 @@ namespace GeneradorVoucher
                     page.Content().PaddingVertical(15).Column(column =>
                     {
                         // Bloque de Información del Cliente
-                        column.Item().Background(Colors.White).Padding(15).Column(subColumn =>
+                        column.Item().Background("#F0F8FB").Padding(15).Column(subColumn =>
                         {
                             subColumn.Item().Text("INFORMACIÓN DEL CLIENTE").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
                             subColumn.Item().PaddingTop(4);
 
                             subColumn.Item().Row(r =>
                             {
+                                r.RelativeItem().Text($"Responsable: {SesionSistema.UsuarioActual}");
                                 r.RelativeItem().Text($"ID Voucher: {IdActividad}");
-                                r.RelativeItem().Text($"Cliente: {datosClientes.nombreCliente}");
-                                
+
                             });
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"Cant. Personas: {Convert.ToInt32(datosClientes.cantidadCliente)}");
-                                r.RelativeItem().Text($"Fecha Creación: {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}");
+
+                                r.RelativeItem().Text($"Cliente: {datosClientes.NombreCliente}");
+                                r.RelativeItem().Text($"Fecha Creación: {DateTime.Now.ToString("dd-MM-yyyy HH:mm")}");
+
                             });
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"Fecha de Viaje: {datosClientes.fechaCliente}");
-                                r.RelativeItem().Text($"Teléfono: {datosClientes.telefonoCliente}");
+                                r.RelativeItem().Text($"Cant. Adultos: {datosClientes.CantidadAdultosCliente}");
+                                r.RelativeItem().Text($"Fecha de Viaje: {datosClientes.FechaInicioCliente:dd/MM/yyyy}");
+                            });
+
+                            subColumn.Item().Row(r =>
+                            {
+                                r.RelativeItem().Text($"Cant. Niños: {datosClientes.CantidadNinosCliente}");
+                                r.RelativeItem().Text($"Teléfono: {datosClientes.TelefonoCliente}");
                             });
                         });
 
@@ -106,81 +124,113 @@ namespace GeneradorVoucher
                             // Definición de las columnas (Ancho relativo)
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(2); // Fecha Actividad
+                                columns.RelativeColumn(2.2f); // Fecha Actividad
                                 columns.RelativeColumn(3); // Tipo Actividad
-                                columns.RelativeColumn(2); // PickUp
-                                columns.RelativeColumn(3); // Regreso
+                                columns.RelativeColumn(2.5f); // PickUp
+                                columns.RelativeColumn(2); // Regreso
                                 columns.RelativeColumn(3); // Servicio Incluido
                                 columns.RelativeColumn(2); // Precio Entrada
-                                columns.RelativeColumn(2); // Precio Tour
+                                columns.RelativeColumn(2); // Precio Tour Adulto
+                                columns.RelativeColumn(2); // Precio Tour Niño
                             });
 
                             // Encabezados de la tabla
                             table.Header(header =>
                             {
-                                header.Cell().Background("#053559").Padding(5).Text("Fecha").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("Actividad").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("PickUp").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("Regreso").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("Incluye").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("Precio Entrada").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#053559").Padding(5).Text("Precio Tour").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Fecha").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Actividad").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("PickUp").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Regreso").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Incluye").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Entrada").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Adulto").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Niño").Bold().FontColor(Colors.White);
                             });
 
                             // Filas de datos
                             foreach (var actividad in actividades)
                             {
-                               // table.Cell().Padding(5).Text($"{actividad.fechaActividad}");
-                               // table.Cell().Padding(5).Text($"{actividad.tipoActividad}");
-                               // table.Cell().Padding(5).Text($"{actividad.pickupActividad}");
-                               // table.Cell().Padding(5).Text($"{actividad.regresoActividad}");
-                               // table.Cell().Padding(5).Text($"{actividad.servicioActividad}");
-                                //table.Cell().Padding(5).AlignRight().Text($"${actividad.precioEntrada:N0}");
-                                //table.Cell().Padding(5).AlignRight().Text($"${actividad.precioTour:N0}");
+                                table.Cell().Element(CellStyle).Text(actividad.fechaActividad.Value.ToString("dd/MM/yyyy"));
+                                table.Cell().Element(CellStyle).Text(actividad.tipoActividad);
+                                table.Cell().Element(CellStyle).Text(actividad.pickupActividad);
+                                table.Cell().Element(CellStyle).Text(actividad.regresoActividad);
+                                table.Cell().Element(CellStyle).Text(actividad.incluyeActividad);
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioEntrada:N0}");
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioTourAdulto:N0}");
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioTourNino:N0}");
                             }
+
+                            static IContainer CellStyle(IContainer container)
+                            => container.Border(0.5f).BorderColor("#1F4E78").Padding(5);
+
                         });
+
+
 
                         // --- SECCIÓN 3: RESUMEN DE COSTOS ---
                         column.Item().PaddingRight(20).PaddingTop(1, Unit.Centimetre).AlignRight().Width(200).Column(resumen =>
                         {
                             resumen.Item().Row(r =>
                             {
-                                r.RelativeItem().Text("Valor Base Cliente:");
-                                //r.ConstantItem(80).AlignRight().Text($"${totalActividades:N0}");
+                                r.RelativeItem().Text("Valor Entradas:");
+                                r.ConstantItem(80).AlignRight().Text($"${totalEntrada:N0}");
+                            });
+                            resumen.Item().Row(r =>
+                            {
+                                r.RelativeItem().Text("Valor Tour:");
+                                r.ConstantItem(80).AlignRight().Text($"${totalTour:N0}");
                             });
 
                             resumen.Item().PaddingTop(5).BorderTop(1).BorderColor(Colors.Grey.Darken1).Row(r =>
                             {
                                 r.RelativeItem().Text("TOTAL GENERAL:").Bold().FontColor(Colors.Blue.Darken3);
-                              //  r.ConstantItem(80).AlignRight().Text($"${granTotal:N0}").Bold().FontColor(Colors.Blue.Darken3);
+                                r.ConstantItem(80).AlignRight().Text($"${granTotal:N0}").Bold().FontColor(Colors.Blue.Darken3);
                             });
                         });
                     });
 
                     // --- SECCIÓN 4: PIE DE PÁGINA ---
-                    page.Footer().PaddingBottom(15).AlignCenter().Text(text =>
+
+                    page.Footer().Background("#F0F8FB").Column(col =>
                     {
-                        text.CurrentPageNumber();
-                        text.Span(" / ");
-                        text.TotalPages();
+                        // Numero de pagina
+                        col.Item().AlignCenter().Text(text =>
+                        {
+                            text.CurrentPageNumber();
+                            text.Span(" / ");
+                            text.TotalPages();
+                        });
+
+                        col.Item().Height(90).Image(fondoPie).FitUnproportionally();
                     });
                 });
             }).GeneratePdf(rutaPdf); // Compila y escribe el archivo en disco
 
-            // 3. Notificar al usuario y preguntar si desea abrirlo
-            //var resultado = MessageBox.Show($"¡PDF '{nombreArchivo}' generado con éxito!\n\n¿Desea abrir el archivo ahora?",
-             //                               "PDF Creado", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            try
+            {
+                var topLevel = TopLevel.GetTopLevel(visualOrigen);
+                if (topLevel is Window ventanaMaestra)
+                {
+                    var dialogo = new PdfDialog(rutaPdf);
+                    bool deseaAbrir = await dialogo.ShowDialog<bool>(ventanaMaestra);
 
-           // if (resultado == DialogResult.Yes)
-            //{
-                // Abre el lector de PDFs predeterminado del sistema operativo
-              //  System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaPdf) { UseShellExecute = true });
-           // }
+                    if (deseaAbrir && File.Exists(rutaPdf))
+                    {
+                        await Task.Run(() =>
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaPdf)
+                            {
+                                UseShellExecute = true
+                            });
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones por si el lector de PDF del sistema falla
+                Console.WriteLine($"Error al intentar abrir el archivo: {ex.Message}");
+            }
         }
-
-    }
-
-    public class datosActividad
-    {
     }
 }
