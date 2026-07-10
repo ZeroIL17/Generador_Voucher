@@ -157,10 +157,6 @@ public partial class PagModificar : UserControl
             await CargarVouchers();
             this.IrPagina(new PagCliente());
         }
-        catch (IOException)
-        {
-            this.MostrarAlerta("Archivo Bloqueado", "Asegúrese de cerrar 'PlanillaViajes.xlsx' antes de guardar los cambios.", NotificationType.Error);
-        }
         catch (Exception ex)
         {
             this.MostrarAlerta("Error Crítico", $"No se pudo guardar la modificación: {ex.Message}", NotificationType.Error);

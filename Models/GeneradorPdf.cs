@@ -34,8 +34,8 @@ namespace GeneradorVoucher
             }
 
             string rutaPdf = Path.Combine(carpetaPdf, nombreArchivo);
-            string logo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo_caminandes.png");
-            string fondoPie = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "imagen_pie_pdf.png");
+            byte[] logo = RecursosPdf.Logo;
+            byte[] fondoPie = RecursosPdf.ImagenPie;
 
             // Calcular el total general sumando el valor base más los subtotales de las actividades
             int totalPasajeros = (int)datosClientes.CantidadAdultosCliente + (int)datosClientes.CantidadNinosCliente;
