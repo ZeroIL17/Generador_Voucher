@@ -1,82 +1,86 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<!-- Controla SelfContained en el momento de publish -->
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<AvaloniaUsePlatformDetect>true</AvaloniaUsePlatformDetect>
+		<RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<AvaloniaResource Include="Assets\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.5" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.1" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.2" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.2" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.2" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
-    <PackageReference Include="Dapper" Version="2.1.79" />
-    <PackageReference Include="Npgsql" Version="10.0.3" />
-    <PackageReference Include="QuestPDF" Version="2026.6.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="12.0.5" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.1" />
+		<PackageReference Include="Avalonia.Desktop" Version="12.0.2" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.2" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.2" />
+		<PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
+			<IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+			<PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+		<PackageReference Include="Dapper" Version="2.1.79" />
+		<PackageReference Include="Npgsql" Version="10.0.3" />
+		<PackageReference Include="QuestPDF" Version="2026.6.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <AvaloniaResource Update="Assets\fondo_inicio %282%29.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\fondo_inicio.jpg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\foto_mano.jpg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\foto_mar_personas.jpg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\logo_caminandes.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AvaloniaResource>
-  </ItemGroup>
+	<ItemGroup>
+		<AvaloniaResource Update="Assets\fondo_inicio %282%29.jpg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Update="Assets\fondo_inicio.jpg">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Update="Assets\foto_mano.jpg">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Update="Assets\foto_mar_personas.jpg">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Update="Assets\logo_caminandes.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</AvaloniaResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-	  <EmbeddedResource Include="Assets\logo_caminandes_2.png"/>
-	  <EmbeddedResource Include="Assets\imagen_pie_pdf.png"/>	  
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\logo_caminandes_2.png"/>
+		<EmbeddedResource Include="Assets\imagen_pie_pdf.png"/>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="imagen_pie_pdf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="logo_caminandes.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="PlanillaViajes.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Template_cotizaciones.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Usuarios.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="imagen_pie_pdf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="logo_caminandes.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="PlanillaViajes.xlsx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Template_cotizaciones.xlsx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Usuarios.xlsx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>

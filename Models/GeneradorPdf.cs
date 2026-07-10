@@ -51,7 +51,7 @@ namespace GeneradorVoucher
                     // Configuración de la página (Márgenes y Tamaño A4)
                     page.Size(PageSizes.Letter);
                     page.Margin(0, Unit.Centimetre);
-                    page.PageColor("#F0F8FB");
+                    page.PageColor("#F1F9FB");
                     page.DefaultTextStyle(x => x.FontSize(11).FontColor(Colors.Grey.Darken3));
 
                     // --- SECCIÓN 1: ENCABEZADO ---
@@ -80,8 +80,19 @@ namespace GeneradorVoucher
                     // --- SECCIÓN 2: CONTENIDO PRINCIPAL ---
                     page.Content().PaddingVertical(15).Column(column =>
                     {
+                        column.Item().PaddingHorizontal(15).PaddingBottom(5).Column(titulo =>
+                        {
+                            titulo.Item().Text("Cotización de servicios")
+                                .FontSize(20)
+                                .Bold()
+                                .FontColor("#1F4E78");
+
+                            // Línea decorativa debajo del título
+                            titulo.Item().PaddingTop(6).BorderBottom(1).BorderColor("#1F4E78").Width(200);
+                        });
+
                         // Bloque de Información del Cliente
-                        column.Item().Background("#F0F8FB").Padding(15).Column(subColumn =>
+                        column.Item().Background("#F0F8FB").PaddingHorizontal(15).PaddingVertical(5).Column(subColumn =>
                         {
                             subColumn.Item().Text("INFORMACIÓN DEL CLIENTE").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
                             subColumn.Item().PaddingTop(4);
@@ -191,7 +202,7 @@ namespace GeneradorVoucher
 
                     // --- SECCIÓN 4: PIE DE PÁGINA ---
 
-                    page.Footer().Background("#F0F8FB").Column(col =>
+                    page.Footer().Background("#F1F9FB").Column(col =>
                     {
                         // Numero de pagina
                         col.Item().AlignCenter().Text(text =>
@@ -216,13 +227,7 @@ namespace GeneradorVoucher
 
                     if (deseaAbrir && File.Exists(rutaPdf))
                     {
-                        await Task.Run(() =>
-                        {
-                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaPdf)
-                            {
-                                UseShellExecute = true
-                            });
-                        });
+                        OpenFileCrossPlatform(rutaPdf);
                     }
                 }
             }
@@ -230,6 +235,37 @@ namespace GeneradorVoucher
             {
                 // Manejo de excepciones por si el lector de PDF del sistema falla
                 Console.WriteLine($"Error al intentar abrir el archivo: {ex.Message}");
+            }
+        }
+
+        private static void OpenFileCrossPlatform(string path)
+        {
+            try
+            {
+                // Intento simple que funciona en la mayoría de plataformas con .NET moderno
+                var psi = new ProcessStartInfo(path) { UseShellExecute = true };
+                Process.Start(psi);
+            }
+            catch
+            {
+                // Fallbacks explícitos
+                if (OperatingSystem.IsMacOS())
+                {
+                    Process.Start("open", path);
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    Process.Start("xdg-open", path);
+                }
+                else if (OperatingSystem.IsWindows())
+                {
+                    var psi = new ProcessStartInfo(path) { UseShellExecute = true };
+                    Process.Start(psi);
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
     }

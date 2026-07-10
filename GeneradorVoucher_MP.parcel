@@ -1,0 +1,36 @@
+{
+    "GeneralSettings": {
+        "NetProjectPath": "GeneradorVoucher_MP.csproj",
+        "ApplicationName": "Generador Voucher",
+        "Version": "1.0.0",
+        "PackageName": {
+            "$type": "msbuild",
+            "property": "AssemblyName"
+        },
+        "AssemblyName": {
+            "$type": "msbuild",
+            "property": "AssemblyName"
+        }
+    },
+    "LinuxSettings": {
+        "CreateBinSymlink": "True"
+    },
+    "Win32Settings": {
+        "InstallerIcon": "Assets/icono_caminandes_2.ico",
+        "Company": "Caminandes",
+        "CompanyFolder": "True",
+        "InstallerRequiresAdmin": "False",
+        "IncludeUninstaller": "True"
+    },
+    "MacOsSettings": {
+        "CreateBundle": true,
+        "BundleIdentifier": "com.CompanyName.GeneradorVoucher-MP",
+        "SigningCredentialsType": "AdHoc"
+    },
+    "PublishSettings": {
+        "PublishSingleFile": "True",
+        "PublishAot": "True",
+        "PublishReadyToRun": "True",
+        "ExtraBuildProperties": {}
+    }
+}
