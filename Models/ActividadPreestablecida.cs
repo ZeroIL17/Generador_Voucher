@@ -12,6 +12,6 @@ namespace GeneradorVoucher_MP.Models
         public required string incluye { get; set; }
         public double precioEntrada { get; set; }
         public double precioTourAdulto { get; set; }
-        public string precioTourNino { get; set; }
+        public string? precioTourNino { get; set; }
     }
 }

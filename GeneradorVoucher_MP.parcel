@@ -17,7 +17,7 @@
     },
     "Win32Settings": {
         "InstallerIcon": "Assets/icono_caminandes_2.ico",
-        "Company": "Caminandes",
+        "Company": "CaminAndes",
         "CompanyFolder": "True",
         "InstallerRequiresAdmin": "False",
         "IncludeUninstaller": "True"
@@ -29,7 +29,6 @@
     },
     "PublishSettings": {
         "PublishSingleFile": "True",
-        "PublishAot": "True",
         "PublishReadyToRun": "True",
         "ExtraBuildProperties": {}
     }

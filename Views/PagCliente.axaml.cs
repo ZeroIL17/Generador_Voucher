@@ -69,4 +69,9 @@ public partial class PagCliente : UserControl
     {
         this.IrPagina(new PagModificar());
     }
+
+    private void btnVolverInicio_Click(object? sender, RoutedEventArgs e)
+    {
+        this.IrPagina(new PagInicio());
+    }
 }

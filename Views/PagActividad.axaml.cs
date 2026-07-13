@@ -5,11 +5,15 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using AvaloniaApplication1.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using GeneradorVoucher;
+using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 
@@ -22,14 +26,23 @@ public partial class PagActividad : UserControl
     private readonly ObservableCollection<DatosActividad> datosActividades = new();
     private readonly DatosCliente? clienteActual;
 
-    // Propiedad pública para que XAML pueda acceder
+    public record IdiomaOpcion(IdiomaVoucher Value, string Label);
+    public ObservableCollection<IdiomaOpcion> IdiomaOpciones { get; } = new ObservableCollection<IdiomaOpcion>
+    {
+        new IdiomaOpcion(IdiomaVoucher.Espanol, "Español"),
+        new IdiomaOpcion(IdiomaVoucher.Ingles, "Inglés"),
+        new IdiomaOpcion(IdiomaVoucher.Portugues, "Portugués")
+    };
+
     public ObservableCollection<DatosActividad> DatosActividades => datosActividades;
     public List<ActividadPreestablecida> CatalogoOpciones => catalogoOpciones;
 
     public PagActividad()
     {
         InitializeComponent();
-        CargarCatalogo();
+        CargarCatalogo(IdiomaVoucher.Espanol);
+        cmbIdiomaVoucherActividad.SelectedItem = IdiomaOpciones[0]; // Selecciona Español por defecto
+        datosActividades.CollectionChanged += datosActividades_CollectionChanged;
         dgvListaActividades.ItemsSource = datosActividades;
         this.DataContext = this;
     }
@@ -38,17 +51,21 @@ public partial class PagActividad : UserControl
     public PagActividad(DatosCliente datosCliente)
     {
         InitializeComponent();
-        CargarCatalogo();
+        CargarCatalogo(IdiomaVoucher.Espanol);
+        cmbIdiomaVoucherActividad.SelectedItem = IdiomaOpciones[0]; // Selecciona Español por defecto
+
+
+        datosActividades.CollectionChanged += datosActividades_CollectionChanged;
         dgvListaActividades.ItemsSource = datosActividades;
         clienteActual = datosCliente;
         this.DataContext = this;
     }
 
-    private void CargarCatalogo()
+    private void CargarCatalogo(IdiomaVoucher idioma)
     {
         try
         {
-            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades();
+            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades(idioma);
             cmbTourServicioActividad.ItemsSource = catalogoOpciones;
         }
         catch (FileNotFoundException)
@@ -97,19 +114,25 @@ public partial class PagActividad : UserControl
         {
             tourSeleccionado = actividad.tour;
         }
+        else if (textFechaActividad.SelectedDate == null || cmbTourServicioActividad.SelectedItem == null)
+        {
+            this.MostrarAlerta("Campos Vacíos", "Debe seleccionar un tour o llenar los campos manualmente.", NotificationType.Warning);
+            if (textFechaActividad.SelectedDate == null) textFechaActividad.MarcarError();
+
+            return;
+        }
 
         var nuevaActividad = new DatosActividad
         {
-            // En Avalonia se suele usar DatePicker (SelectedDate) o CalendarDatePicker
-            fechaActividad = textFechaActividad.SelectedDate ?? DateTime.Now,
-            tipoActividad = tourSeleccionado,
-            pickupActividad = textHorarioPickUpActividad.Text?.Trim() ?? string.Empty,
-            regresoActividad = textHorarioRegresoActividad.Text?.Trim() ?? string.Empty,
-            incluyeActividad = textIncluyeActividad.Text?.Trim() ?? string.Empty,
+            FechaActividad = textFechaActividad.SelectedDate ?? DateTime.Now,
+            TipoActividad = tourSeleccionado,
+            PickupActividad = textHorarioPickUpActividad.Text?.Trim() ?? string.Empty,
+            RegresoActividad = textHorarioRegresoActividad.Text?.Trim() ?? string.Empty,
+            IncluyeActividad = textIncluyeActividad.Text?.Trim() ?? string.Empty,
 
-            precioEntrada = double.TryParse(textPrecioEntradaActividad.Text, out var pEntrada) ? pEntrada : 0,
-            precioTourAdulto = double.TryParse(textTourAdultoActividad.Text, out var pAdulto) ? pAdulto : 0,
-            precioTourNino = double.TryParse(textTourNinoActividad.Text, out var pNino) ? pNino : 0
+            PrecioEntrada = double.TryParse(textPrecioEntradaActividad.Text, out var pEntrada) ? pEntrada : 0,
+            PrecioTourAdulto = double.TryParse(textTourAdultoActividad.Text, out var pAdulto) ? pAdulto : 0,
+            PrecioTourNino = double.TryParse(textTourNinoActividad.Text, out var pNino) ? pNino : 0
         };
 
         datosActividades.Add(nuevaActividad);
@@ -139,6 +162,12 @@ public partial class PagActividad : UserControl
             return;
         }
 
+        if (clienteActual == null)
+        {
+            this.MostrarAlerta("Cliente faltante", "No se ha proporcionado información del cliente. Imposible crear el voucher.", NotificationType.Error);
+            return;
+        }
+
         try
         {
             manejoRegistros.GuardarViajeExcel(clienteActual, datosActividades);
@@ -151,10 +180,22 @@ public partial class PagActividad : UserControl
 
         try
         {
+
+            IdiomaVoucher idiomaSeleccionado;
+            if (cmbIdiomaVoucherActividad.SelectedValue is IdiomaOpcion idiomaOpcion)
+            {
+                idiomaSeleccionado = idiomaOpcion.Value;
+            }
+            else
+            {
+                idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
+            }
+
             int idActividad = manejoRegistros.GuardarViajeDB(clienteActual, datosActividades);
             this.MostrarAlerta("Éxito", $"¡Todo guardado con éxito! Se registró con el ID: {idActividad}", NotificationType.Success);
-            await GeneradorPdf.GenerarReportePDF(idActividad, clienteActual, datosActividades, this);
+            await GeneradorPdf.GenerarReportePDF(idActividad, clienteActual, datosActividades, idiomaSeleccionado, this);
 
+            cmbIdiomaVoucherActividad.IsEnabled = true;
             this.IrPagina(new PagCliente());
         }
         catch (Exception ex)
@@ -173,6 +214,43 @@ public partial class PagActividad : UserControl
             {
                 datosActividades.Remove(seleccionada);
             }
+        }
+    }
+
+    private void cmbIdiomaVoucherActividad_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        IdiomaVoucher idiomaSeleccionado;
+        if (cmbIdiomaVoucherActividad.SelectedValue is IdiomaOpcion idiomaOpcion)
+        {
+            idiomaSeleccionado = idiomaOpcion.Value;
+        }
+        else
+        {
+            idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
+        }
+
+        try
+        {
+            CargarCatalogo(idiomaSeleccionado);
+
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            this.MostrarAlerta("Error Crítico", $"Ocurrió un problema al cambiar el idioma: {ex.Message}", NotificationType.Error);
+
+        }
+    }
+
+    private void datosActividades_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (datosActividades.Count > 0)
+        {
+            cmbIdiomaVoucherActividad.IsEnabled = false;
+        }
+        else
+        {
+            cmbIdiomaVoucherActividad.IsEnabled = true;
         }
     }
 }

@@ -6,13 +6,13 @@ namespace GeneradorVoucher_MP.Models
 {
     public class DatosActividad
     {
-        public DateTime? fechaActividad { get; set; }
-        public string tipoActividad { get; set; } = string.Empty;
-        public string pickupActividad { get; set; } = string.Empty;
-        public string regresoActividad { get; set; } = string.Empty;
-        public string incluyeActividad { get; set; } = string.Empty;
-        public double precioEntrada { get; set; }
-        public double precioTourAdulto { get; set; }
-        public double precioTourNino { get; set; }
+        public DateTime? FechaActividad { get; set; }
+        public string TipoActividad { get; set; } = string.Empty;
+        public string PickupActividad { get; set; } = string.Empty;
+        public string RegresoActividad { get; set; } = string.Empty;
+        public string IncluyeActividad { get; set; } = string.Empty;
+        public double PrecioEntrada { get; set; }
+        public double PrecioTourAdulto { get; set; }
+        public double PrecioTourNino { get; set; }
     }
 }

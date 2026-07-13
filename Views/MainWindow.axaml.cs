@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using GeneradorVoucher_MP;
 using System;
+using System.Diagnostics;
 
 namespace AvaloniaApplication1.Views
 {

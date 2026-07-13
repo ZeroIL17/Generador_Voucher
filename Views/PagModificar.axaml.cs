@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using GeneradorVoucher;
+using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
 using System;
 using System.Collections.Generic;
@@ -28,14 +29,31 @@ public partial class PagModificar : UserControl
     public ManejoRegistros ManejoRegistros => manejoRegistros;
     public List<ActividadPreestablecida> CatalogoOpciones => catalogoOpciones;
 
+    public record IdiomaOpcion(IdiomaVoucher Value, string Label);
+    public ObservableCollection<IdiomaOpcion> IdiomaOpciones { get; } = new ObservableCollection<IdiomaOpcion>
+    {
+        new IdiomaOpcion(IdiomaVoucher.Espanol, "Español"),
+        new IdiomaOpcion(IdiomaVoucher.Ingles, "Inglés"),
+        new IdiomaOpcion(IdiomaVoucher.Portugues, "Portugués")
+    };
+
     public PagModificar()
     {
         InitializeComponent();
         SetInputEnabled(false);
         dgvActividadesMostradas.ItemsSource = actividadesMostradas;
+        cmbIdiomaVoucherModificar.SelectedItem = IdiomaOpciones[0];
         this.DataContext = this;
-        CargarVouchers();
-        CargarCatalogo();
+
+        // Evita llamadas async no aguardadas en el constructor suscribiendo un handler Loaded
+        this.Loaded += PagModificar_Loaded;
+    }
+
+    private async void PagModificar_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Ahora se awaitea la carga asíncrona y la carga sincrónica se ejecuta después
+        await CargarVouchers();
+        CargarCatalogo(IdiomaVoucher.Espanol);
     }
 
     private async Task CargarVouchers()
@@ -118,20 +136,20 @@ public partial class PagModificar : UserControl
             textAdultosModificar.Value < 1 || textAdultosModificar.Value is null)
         {
             this.MostrarAlerta("Campos Incompletos", "Por favor, complete todos los campos del cliente antes de guardar.", NotificationType.Warning);
-            if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text)) textNombreClienteModificar.MarcarError();
+            if (textAdultosModificar.Value < 1 || textAdultosModificar.Value is null) textAdultosModificar.MarcarError();
             if (string.IsNullOrWhiteSpace(textTelefonoModificar.Text)) textTelefonoModificar.MarcarError();
             if (textFechaInicioModificar.SelectedDate == null) textFechaInicioModificar.MarcarError();
-            if (textAdultosModificar.Value < 1 || textAdultosModificar.Value is null) textAdultosModificar.MarcarError();
+            if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text)) textNombreClienteModificar.MarcarError();
 
             return;
         }
 
         foreach (var act in actividadesMostradas)
         {
-            if (act.fechaActividad == null || act.fechaActividad == DateTime.MinValue)
+            if (act.FechaActividad == null || act.FechaActividad == DateTime.MinValue)
             {
                 this.MostrarAlerta("Falta Información",
-                                   $"Por favor, asigna una fecha válida al servicio: '{act.tipoActividad}'.",
+                                   $"Por favor, asigna una fecha válida al servicio: '{act.TipoActividad}'.",
                                    NotificationType.Warning);
                 return; // Detiene la ejecución completa del guardado
             }
@@ -139,6 +157,16 @@ public partial class PagModificar : UserControl
 
         try
         {
+            IdiomaVoucher idiomaSeleccionado;
+            if (cmbIdiomaVoucherModificar.SelectedValue is IdiomaOpcion idiomaOpcion)
+            {
+                idiomaSeleccionado = idiomaOpcion.Value;
+            }
+            else
+            {
+                idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
+            }
+
             var clienteModificado = new DatosCliente
             {
                 NombreCliente = textNombreClienteModificar.Text,
@@ -150,7 +178,7 @@ public partial class PagModificar : UserControl
 
             manejoRegistros.ActualizarVoucher(voucherSeleccionado.Id, clienteModificado, actividadesMostradas);
             this.MostrarAlerta("Operación Completada", "Voucher modificado y PDF actualizado con éxito.", NotificationType.Success);
-            await GeneradorPdf.GenerarReportePDF(voucherSeleccionado.Id, clienteModificado, actividadesMostradas, this);
+            await GeneradorPdf.GenerarReportePDF(voucherSeleccionado.Id, clienteModificado, actividadesMostradas, idiomaSeleccionado, this);
 
             CleanInputs();
 
@@ -191,11 +219,11 @@ public partial class PagModificar : UserControl
             }
         }
     }
-    private void CargarCatalogo()
+    private void CargarCatalogo(IdiomaVoucher idioma)
     {
         try
         {
-            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades();
+            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades(idioma);
             cmbTourServicioActividadModificar.ItemsSource = catalogoOpciones;
         }
         catch (FileNotFoundException)
@@ -219,15 +247,40 @@ public partial class PagModificar : UserControl
 
         var nuevaActividad = new DatosActividad
         {
-            fechaActividad = null,
-            incluyeActividad = actividadPreestablecida.incluye,
-            pickupActividad = actividadPreestablecida.pickUp,
-            precioEntrada = actividadPreestablecida.precioEntrada,
-            precioTourAdulto = actividadPreestablecida.precioTourAdulto,
-            precioTourNino = double.TryParse(actividadPreestablecida.precioTourNino, out var pNino) ? pNino : 0,
-            regresoActividad = actividadPreestablecida.regreso,
-            tipoActividad = actividadPreestablecida.tour
+            FechaActividad = null,
+            IncluyeActividad = actividadPreestablecida.incluye,
+            PickupActividad = actividadPreestablecida.pickUp,
+            PrecioEntrada = actividadPreestablecida.precioEntrada,
+            PrecioTourAdulto = actividadPreestablecida.precioTourAdulto,
+            PrecioTourNino = double.TryParse(actividadPreestablecida.precioTourNino, out var pNino) ? pNino : 0,
+            RegresoActividad = actividadPreestablecida.regreso,
+            TipoActividad = actividadPreestablecida.tour
         };
         actividadesMostradas.Add(nuevaActividad);
+    }
+
+    private void cmbIdiomaVoucherModificar_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        IdiomaVoucher idiomaSeleccionado;
+        if (cmbIdiomaVoucherModificar.SelectedValue is IdiomaOpcion idiomaOpcion)
+        {
+            idiomaSeleccionado = idiomaOpcion.Value;
+        }
+        else
+        {
+            idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
+        }
+
+        try
+        {
+            CargarCatalogo(idiomaSeleccionado);
+
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            this.MostrarAlerta("Error Crítico", $"Ocurrió un problema al cambiar el idioma: {ex.Message}", NotificationType.Error);
+
+        }
     }
 }

@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GeneradorVoucher_MP;
+using GeneradorVoucher_MP.Enums;
+using GeneradorVoucher_MP.Localization;
 using GeneradorVoucher_MP.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -21,7 +23,7 @@ namespace GeneradorVoucher
 {
     public static class GeneradorPdf
     {
-        public static async Task GenerarReportePDF(int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, Visual visualOrigen)
+        public static async Task GenerarReportePDF(int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, IdiomaVoucher idioma ,Visual visualOrigen)
         {
             // 1. Definir la ruta de guardado del PDF (Misma carpeta del programa)
             string nombreArchivo = $"Itinerario_Cliente_{IdActividad}.pdf";
@@ -39,8 +41,8 @@ namespace GeneradorVoucher
 
             // Calcular el total general sumando el valor base más los subtotales de las actividades
             int totalPasajeros = (int)datosClientes.CantidadAdultosCliente + (int)datosClientes.CantidadNinosCliente;
-            double totalEntrada = actividades.Sum(a => a.precioEntrada * totalPasajeros);
-            double totalTour = actividades.Sum(a => (int)datosClientes.CantidadAdultosCliente * a.precioTourAdulto + (int)datosClientes.CantidadNinosCliente * a.precioTourNino);
+            double totalEntrada = actividades.Sum(a => a.PrecioEntrada * totalPasajeros);
+            double totalTour = actividades.Sum(a => (int)datosClientes.CantidadAdultosCliente * a.PrecioTourAdulto + (int)datosClientes.CantidadNinosCliente * a.PrecioTourNino);
             double granTotal = totalEntrada + totalTour;
 
             // 2. Construcción del documento con la sintaxis fluida de QuestPDF
@@ -51,7 +53,7 @@ namespace GeneradorVoucher
                     // Configuración de la página (Márgenes y Tamaño A4)
                     page.Size(PageSizes.Letter);
                     page.Margin(0, Unit.Centimetre);
-                    page.PageColor("#F1F9FB");
+                    page.PageColor("#F1F5F8");
                     page.DefaultTextStyle(x => x.FontSize(11).FontColor(Colors.Grey.Darken3));
 
                     // --- SECCIÓN 1: ENCABEZADO ---
@@ -82,7 +84,7 @@ namespace GeneradorVoucher
                     {
                         column.Item().PaddingHorizontal(15).PaddingBottom(5).Column(titulo =>
                         {
-                            titulo.Item().Text("Cotización de servicios")
+                            titulo.Item().Text(LocalizadorPdf.ObtenerIdioma(idioma, "TituloVoucher"))
                                 .FontSize(20)
                                 .Bold()
                                 .FontColor("#1F4E78");
@@ -94,12 +96,12 @@ namespace GeneradorVoucher
                         // Bloque de Información del Cliente
                         column.Item().Background("#F0F8FB").PaddingHorizontal(15).PaddingVertical(5).Column(subColumn =>
                         {
-                            subColumn.Item().Text("INFORMACIÓN DEL CLIENTE").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                            subColumn.Item().Text(LocalizadorPdf.ObtenerIdioma(idioma, "TituloCliente")).Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
                             subColumn.Item().PaddingTop(4);
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"Responsable: {SesionSistema.UsuarioActual}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "Responsable")}: {SesionSistema.UsuarioActual}");
                                 r.RelativeItem().Text($"ID Voucher: {IdActividad}");
 
                             });
@@ -107,26 +109,26 @@ namespace GeneradorVoucher
                             subColumn.Item().Row(r =>
                             {
 
-                                r.RelativeItem().Text($"Cliente: {datosClientes.NombreCliente}");
-                                r.RelativeItem().Text($"Fecha Creación: {DateTime.Now.ToString("dd-MM-yyyy HH:mm")}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "Cliente")}: {datosClientes.NombreCliente}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "FechaCreacion")}: {DateTime.Now.ToString("dd-MM-yyyy HH:mm")}");
 
                             });
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"Cant. Adultos: {datosClientes.CantidadAdultosCliente}");
-                                r.RelativeItem().Text($"Fecha de Viaje: {datosClientes.FechaInicioCliente:dd/MM/yyyy}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "CantidadAdultos")}: {datosClientes.CantidadAdultosCliente}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "FechaViaje")}: {datosClientes.FechaInicioCliente:dd/MM/yyyy}");
                             });
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"Cant. Niños: {datosClientes.CantidadNinosCliente}");
-                                r.RelativeItem().Text($"Teléfono: {datosClientes.TelefonoCliente}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "CantidadNinos")}: {datosClientes.CantidadNinosCliente}");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "Telefono")}: {datosClientes.TelefonoCliente}");
                             });
                         });
 
                         column.Item().PaddingTop(1, Unit.Centimetre);
-                        column.Item().PaddingLeft(15).Text("DETALLE DE ACTIVIDADES CONTRATADAS").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                        column.Item().PaddingLeft(15).Text(LocalizadorPdf.ObtenerIdioma(idioma, "TituloActividad")).Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
                         column.Item().PaddingTop(5);
 
                         // TABLA 
@@ -148,27 +150,30 @@ namespace GeneradorVoucher
                             // Encabezados de la tabla
                             table.Header(header =>
                             {
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Fecha").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Actividad").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("PickUp").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Regreso").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Incluye").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Entrada").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Adulto").Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text("Precio Niño").Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "FechaActividad")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "TipoActividad")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PickupActividad")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "RegresoActividad")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "IncluyeActividad")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioEntrada")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioTourAdulto")).Bold().FontColor(Colors.White);
+                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioTourNino")).Bold().FontColor(Colors.White);
                             });
 
                             // Filas de datos
                             foreach (var actividad in actividades)
                             {
-                                table.Cell().Element(CellStyle).Text(actividad.fechaActividad.Value.ToString("dd/MM/yyyy"));
-                                table.Cell().Element(CellStyle).Text(actividad.tipoActividad);
-                                table.Cell().Element(CellStyle).Text(actividad.pickupActividad);
-                                table.Cell().Element(CellStyle).Text(actividad.regresoActividad);
-                                table.Cell().Element(CellStyle).Text(actividad.incluyeActividad);
-                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioEntrada:N0}");
-                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioTourAdulto:N0}");
-                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.precioTourNino:N0}");
+                                // Evitar acceso directo a .Value de DateTime? y proteger referencias que pueden ser null
+                                string fechaText = actividad.FechaActividad?.ToString("dd/MM/yyyy") ?? "";
+
+                                table.Cell().Element(CellStyle).Text(fechaText);
+                                table.Cell().Element(CellStyle).Text(actividad.TipoActividad ?? "");
+                                table.Cell().Element(CellStyle).Text(actividad.PickupActividad ?? "");
+                                table.Cell().Element(CellStyle).Text(actividad.RegresoActividad ?? "");
+                                table.Cell().Element(CellStyle).Text(actividad.IncluyeActividad ?? "");
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioEntrada:N0}");
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioTourAdulto:N0}");
+                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioTourNino:N0}");
                             }
 
                             static IContainer CellStyle(IContainer container)
@@ -183,18 +188,18 @@ namespace GeneradorVoucher
                         {
                             resumen.Item().Row(r =>
                             {
-                                r.RelativeItem().Text("Valor Entradas:");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "ValorEntradas")}:");
                                 r.ConstantItem(80).AlignRight().Text($"${totalEntrada:N0}");
                             });
                             resumen.Item().Row(r =>
                             {
-                                r.RelativeItem().Text("Valor Tour:");
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "ValorTour")}:");
                                 r.ConstantItem(80).AlignRight().Text($"${totalTour:N0}");
                             });
 
                             resumen.Item().PaddingTop(5).BorderTop(1).BorderColor(Colors.Grey.Darken1).Row(r =>
                             {
-                                r.RelativeItem().Text("TOTAL GENERAL:").Bold().FontColor(Colors.Blue.Darken3);
+                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "TotalGeneral")}:").Bold().FontColor(Colors.Blue.Darken3);
                                 r.ConstantItem(80).AlignRight().Text($"${granTotal:N0}").Bold().FontColor(Colors.Blue.Darken3);
                             });
                         });
@@ -202,7 +207,7 @@ namespace GeneradorVoucher
 
                     // --- SECCIÓN 4: PIE DE PÁGINA ---
 
-                    page.Footer().Background("#F1F9FB").Column(col =>
+                    page.Footer().Background("#F1F5F8").Column(col =>
                     {
                         // Numero de pagina
                         col.Item().AlignCenter().Text(text =>

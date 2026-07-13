@@ -27,10 +27,34 @@
                         Background="#1F4E78"
                         CornerRadius="10,10,0,0"
                         Padding="20,14">
-                    <TextBlock Text="Modificar voucher"
+                    <Grid 
+                        ColumnDefinitions="Auto, *, Auto">
+                        <TextBlock Grid.Column="0" 
+                               Text="Modificar voucher"
                                FontSize="16"
                                FontWeight="SemiBold"
-                               Foreground="White" />
+                               Foreground="White" />   
+                        
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="Idioma Voucher" VerticalAlignment="Center" Padding="10,0"
+                                       FontSize="12"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"/>
+                            <ComboBox Name="cmbIdiomaVoucherModificar"
+                                      Background="#CCFFFFFF"
+                                      ItemsSource="{Binding IdiomaOpciones}"
+                                      Width="120"
+                                      SelectionChanged="cmbIdiomaVoucherModificar_SelectionChanged"
+                                      IsEditable="False">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>                    
+                        </StackPanel>
+                    </Grid>
+                    
                 </Border>
 
                 <!-- Selector de voucher -->
@@ -164,7 +188,7 @@
                                 <DataGridTemplateColumn Header="Fecha" Width="140">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding fechaActividad, StringFormat=\{0:dd-MM-yyyy\}}" 
+                                            <TextBlock Text="{Binding FechaActividad, StringFormat=\{0:dd-MM-yyyy\}}" 
                                                        VerticalAlignment="Center" 
                                                        HorizontalAlignment="Center" 
                                                        Margin="5,0"/>
@@ -173,7 +197,7 @@
 
                                     <DataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
-                                            <CalendarDatePicker SelectedDate="{Binding fechaActividad, Mode=TwoWay}"
+                                            <CalendarDatePicker SelectedDate="{Binding FechaActividad, Mode=TwoWay}"
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalAlignment="Center"
                                                                 SelectedDateFormat="Custom"
@@ -182,25 +206,25 @@
                                     </DataGridTemplateColumn.CellEditingTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Tour"
-                                                    Binding="{Binding tipoActividad}"
+                                                    Binding="{Binding TipoActividad}"
                                                     MaxWidth="250" />
                                 <DataGridTextColumn Header="Pick Up"
-                                                    Binding="{Binding pickupActividad}"
+                                                    Binding="{Binding PickupActividad}"
                                                     Width="Auto" />
                                 <DataGridTextColumn Header="Regreso"
-                                                    Binding="{Binding regresoActividad}"
+                                                    Binding="{Binding RegresoActividad}"
                                                     Width="Auto" />
                                 <DataGridTextColumn Header="Incluye"
-                                                    Binding="{Binding incluyeActividad}"
+                                                    Binding="{Binding IncluyeActividad}"
                                                     MaxWidth="200" />
                                 <DataGridTextColumn Header="Entrada"
-                                                    Binding="{Binding precioEntrada, StringFormat=\{0:C0\}}"
+                                                    Binding="{Binding PrecioEntrada, StringFormat=\{0:C0\}}"
                                                     Width="Auto" />
                                 <DataGridTextColumn Header="Precio Adulto"
-                                                    Binding="{Binding precioTourAdulto, StringFormat=\{0:C0\}}"
+                                                    Binding="{Binding PrecioTourAdulto, StringFormat=\{0:C0\}}"
                                                     Width="Auto" />
                                 <DataGridTextColumn Header="Precio Niño"
-                                                    Binding="{Binding precioTourNino, StringFormat=\{0:C0\}}"
+                                                    Binding="{Binding PrecioTourNino, StringFormat=\{0:C0\}}"
                                                     Width="Auto" />
                             </DataGrid.Columns>
                         </DataGrid>

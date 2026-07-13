@@ -8,6 +8,7 @@
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 		<AvaloniaUsePlatformDetect>true</AvaloniaUsePlatformDetect>
 		<RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
+		<ApplicationIcon>icono_programa.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -58,8 +59,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Assets\logo_caminandes_2.png"/>
-		<EmbeddedResource Include="Assets\imagen_pie_pdf.png"/>
+		<EmbeddedResource Include="Assets\logo_caminandes_2.png" />
+		<EmbeddedResource Include="Assets\imagen_pie_pdf.png" />
 		<EmbeddedResource Update="Properties\Resources.resx">
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -82,5 +83,9 @@
 		<None Update="Usuarios.xlsx">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AvaloniaResource Remove="icono_programa.ico" />
 	</ItemGroup>
 </Project>

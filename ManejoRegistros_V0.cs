@@ -93,7 +93,10 @@ namespace GeneradorVoucher_MP.Models
             using (var workbook = new XLWorkbook(rutaCatalogo))
             {
                 var worksheet = workbook.Worksheet("Espanol");
-                var filas = worksheet.RangeUsed().RowsUsed().Skip(1);
+                var rango = worksheet.RangeUsed();
+                if (rango == null) return listaResultado; // hoja vacía o sin rango usado
+
+                var filas = rango.RowsUsed().Skip(1);
 
                 foreach (var fila in filas)
                 {
@@ -151,14 +154,15 @@ namespace GeneradorVoucher_MP.Models
             }
 
             // 2. ESCRITURA DE LOS DATOS
-            int nuevaFilaId = worksheet.LastRowUsed() == null ? 2 : worksheet.LastRowUsed().RowNumber() + 1;
+            var lastRow = worksheet.LastRowUsed();
+            int nuevaFilaId = lastRow == null ? 2 : lastRow.RowNumber() + 1;
             string fechaCreacion = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             foreach (var actividad in actividades)
             {
                 // Cálculo rápido del subtotal por fila (Ajusta la fórmula matemática según tus reglas de negocio)
-                double subtotal = (actividad.precioEntrada + actividad.precioTourAdulto)*datosCliente.CantidadAdultosCliente
-                    + (actividad.precioEntrada + actividad.precioTourNino) * datosCliente.CantidadNinosCliente;
+                double subtotal = (actividad.PrecioEntrada + actividad.PrecioTourAdulto)*datosCliente.CantidadAdultosCliente
+                    + (actividad.PrecioEntrada + actividad.PrecioTourNino) * datosCliente.CantidadNinosCliente;
 
                 worksheet.Cell(nuevaFilaId, 1).Value = idActividad;
                 worksheet.Cell(nuevaFilaId, 2).Value = fechaCreacion;
@@ -168,16 +172,16 @@ namespace GeneradorVoucher_MP.Models
                 worksheet.Cell(nuevaFilaId, 6).Value = datosCliente.FechaInicioCliente.ToString("yyyy-MM-dd");
                 worksheet.Cell(nuevaFilaId, 7).Value = datosCliente.TelefonoCliente;
 
-                worksheet.Cell(nuevaFilaId, 8).Value = actividad.fechaActividad.HasValue
-                    ? actividad.fechaActividad.Value.ToString("yyyy-MM-dd")
+                worksheet.Cell(nuevaFilaId, 8).Value = actividad.FechaActividad.HasValue
+                    ? actividad.FechaActividad.Value.ToString("yyyy-MM-dd")
                     : string.Empty;
-                worksheet.Cell(nuevaFilaId, 9).Value = actividad.tipoActividad;
-                worksheet.Cell(nuevaFilaId, 10).Value = actividad.pickupActividad;
-                worksheet.Cell(nuevaFilaId, 11).Value = actividad.regresoActividad;
-                worksheet.Cell(nuevaFilaId, 12).Value = actividad.incluyeActividad;
-                worksheet.Cell(nuevaFilaId, 13).Value = actividad.precioEntrada;
-                worksheet.Cell(nuevaFilaId, 14).Value = actividad.precioTourAdulto;
-                worksheet.Cell(nuevaFilaId, 15).Value = actividad.precioTourNino;
+                worksheet.Cell(nuevaFilaId, 9).Value = actividad.TipoActividad;
+                worksheet.Cell(nuevaFilaId, 10).Value = actividad.PickupActividad;
+                worksheet.Cell(nuevaFilaId, 11).Value = actividad.RegresoActividad;
+                worksheet.Cell(nuevaFilaId, 12).Value = actividad.IncluyeActividad;
+                worksheet.Cell(nuevaFilaId, 13).Value = actividad.PrecioEntrada;
+                worksheet.Cell(nuevaFilaId, 14).Value = actividad.PrecioTourAdulto;
+                worksheet.Cell(nuevaFilaId, 15).Value = actividad.PrecioTourNino;
                 worksheet.Cell(nuevaFilaId, 16).Value = subtotal;
                 worksheet.Cell(nuevaFilaId, 17).Value = SesionSistema.UsuarioActual; // Responsable de la sesión
 
@@ -197,7 +201,10 @@ namespace GeneradorVoucher_MP.Models
 
             using var workbook = new XLWorkbook(rutaArchivo);
             var worksheet = workbook.Worksheet("Viajes");
-            var filas = worksheet.RangeUsed().RowsUsed().Skip(1);
+            var rango = worksheet.RangeUsed();
+            if (rango == null) return resultado; // hoja vacía
+
+            var filas = rango.RowsUsed().Skip(1);
 
             var idRegistrados = new HashSet<int>();
 
@@ -230,8 +237,11 @@ namespace GeneradorVoucher_MP.Models
             using var workbook = new XLWorkbook(rutaArchivo);
             var worksheet = workbook.Worksheet("Viajes");
 
+            var rango = worksheet.RangeUsed();
+            if (rango == null) throw new Exception("El archivo de registros está vacío o la hoja no contiene datos.");
+
             // Buscamos todas las filas que coincidan con el ID
-            var filasMatch = worksheet.RangeUsed().RowsUsed()
+            var filasMatch = rango.RowsUsed()
                 .Where(f => int.TryParse(f.Cell(1).GetString(), out int v) && v == idSeleccionado)
                 .ToList();
 
@@ -255,14 +265,14 @@ namespace GeneradorVoucher_MP.Models
             {
                 actividades.Add(new DatosActividad
                 {
-                    fechaActividad = DateTime.TryParse(fila.Cell(8).GetString(), out var fa) ? fa : null,
-                    tipoActividad = fila.Cell(9).GetValue<string>(),
-                    pickupActividad = fila.Cell(10).GetValue<string>(),
-                    regresoActividad = fila.Cell(11).GetValue<string>(),
-                    incluyeActividad = fila.Cell(12).GetValue<string>(),
-                    precioEntrada = fila.Cell(13).GetValue<double>(),
-                    precioTourAdulto = fila.Cell(14).GetValue<double>(),
-                    precioTourNino = fila.Cell(15).GetValue<double>()
+                    FechaActividad = DateTime.TryParse(fila.Cell(8).GetString(), out var fa) ? fa : null,
+                    TipoActividad = fila.Cell(9).GetValue<string>(),
+                    PickupActividad = fila.Cell(10).GetValue<string>(),
+                    RegresoActividad = fila.Cell(11).GetValue<string>(),
+                    IncluyeActividad = fila.Cell(12).GetValue<string>(),
+                    PrecioEntrada = fila.Cell(13).GetValue<double>(),
+                    PrecioTourAdulto = fila.Cell(14).GetValue<double>(),
+                    PrecioTourNino = fila.Cell(15).GetValue<double>()
                 });
             }
 

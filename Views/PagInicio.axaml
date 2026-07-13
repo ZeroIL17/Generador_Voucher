@@ -30,7 +30,6 @@
 
             <!-- Barra inferior: usuario izquierda, botón derecha -->
             <Border Grid.Row="1"
-                    Background="#20000000"
                     Padding="40,60">
 
                 <Grid>
@@ -40,44 +39,66 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- IZQUIERDA: usuario -->
+                    <!-- IZQUIERDA: usuario e idioma -->
                     <StackPanel Grid.Column="0"
-                                Orientation="Horizontal"
-                                Spacing="10"
+                                Orientation="Vertical"
+                                Spacing="12"
                                 VerticalAlignment="Center">
 
-                        <TextBlock Text="Usuario"
-                                   FontSize="13"
-                                   Foreground="White"
-                                   VerticalAlignment="Center" />
+                        <!-- Selector de usuario -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Usuario"
+                                       FontSize="13"
+                                       Foreground="White"
+                                       VerticalAlignment="Center" />
 
-                        <AutoCompleteBox Name="cmbSelectUsuario"
-                                         Width="220"
-                                         MinimumPrefixLength="1"
-                                         IsTabStop="True"
-                                         Background="White"
-                                         VerticalAlignment="Center" />
+                            <AutoCompleteBox Name="cmbSelectUsuario"
+                                             Width="220"
+                                             MinimumPrefixLength="1"
+                                             IsTabStop="True"
+                                             Background="#CCFFFFFF"
+                                             VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- DERECHA: botón -->
-                    <Button Grid.Column="2"
-                            Name="btnPagCliente"
-                            Height="40"
-                            Background="White"
-                            Foreground="#222222"
-                            Click="btnPagCliente_Click"
-                            VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal"
-                                    Spacing="8"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="Iniciar nueva aventura"
-                                       VerticalAlignment="Center"
-                                       FontFamily="s"/>
-                            <PathIcon Data="{StaticResource airplane_regular}"
-                                      VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    <Border Grid.Column="2"
+                            VerticalAlignment="Center"
+                            CornerRadius="6"
+                            Padding="0">                     
 
+                        <Button Name="btnPagCliente"
+                                Height="40"
+                                Background="#1F4E78"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="btnPagCliente_Click"
+                                Padding="18,0"
+                                CornerRadius="6">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="#163A5F" />
+                                </Style>
+                                <Style Selector="Button:pressed /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="#0D2A45" />
+                                </Style>
+                            </Button.Styles>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="10"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="Iniciar nueva aventura"
+                                            FontSize="13"
+                                            FontWeight="SemiBold"
+                                            VerticalAlignment="Center" />
+                                <PathIcon Data="{StaticResource airplane_regular}"
+                                            Width="16"
+                                            Height="16"
+                                            VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                    </Border>
                 </Grid>
             </Border>
 

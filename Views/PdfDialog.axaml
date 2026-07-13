@@ -8,7 +8,7 @@
         Width="400" Height="160"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
-        SystemDecorations="BorderOnly"
+        WindowDecorations="BorderOnly"
         SizeToContent="WidthAndHeight"> 
     
     <Border Padding="20" Background="#F9F9F9">

@@ -25,7 +25,9 @@ namespace GeneradorVoucher_MP.Models
 
             using var workbook = new XLWorkbook(rutaArchivo);
             var worksheet = workbook.Worksheet("Usuarios");
-            var filas = worksheet.RangeUsed().RowsUsed().Skip(1);
+            var rango = worksheet.RangeUsed();
+            if (rango == null) return listaUsuarios; // hoja vacía o sin rango usado
+            var filas = rango.RowsUsed().Skip(1);
 
             foreach (var fila in filas)
             {

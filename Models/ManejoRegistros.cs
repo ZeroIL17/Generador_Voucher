@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Dapper;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using GeneradorVoucher_MP.Enums;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,7 @@ namespace GeneradorVoucher_MP.Models
         private IDbConnection ObtenerConexion() => new NpgsqlConnection(_connectionString);
 
         private readonly string rutaArchivo;
-        string rutaCarpetaDirectorio = AppDomain.CurrentDomain.BaseDirectory;
-        string rutaPlanillaViajes = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PlanillaViajes.xlsx");
-
+        readonly string rutaCarpetaDirectorio = AppDomain.CurrentDomain.BaseDirectory;
 
         public ManejoRegistros(string nombreArchivo = "PlanillaViajes.xlsx")
         {
@@ -74,7 +73,7 @@ namespace GeneradorVoucher_MP.Models
             }
         }
 
-        public List<ActividadPreestablecida> ObtenerCatalogoActividades()
+        public List<ActividadPreestablecida> ObtenerCatalogoActividades(IdiomaVoucher idioma)
         {
             var listaResultado = new List<ActividadPreestablecida>();
             string rutaCatalogo = Path.Combine(rutaCarpetaDirectorio, "Template_cotizaciones.xlsx");
@@ -84,10 +83,26 @@ namespace GeneradorVoucher_MP.Models
                 throw new FileNotFoundException("No se encontró el archivo 'Template_cotizaciones.xlsx'.");
             }
 
+            string hojaSeleccionada = idioma switch
+            {
+                IdiomaVoucher.Espanol => "Espanol",
+                IdiomaVoucher.Ingles => "Ingles",
+                IdiomaVoucher.Portugues => "Portugues",
+                _ => throw new ArgumentException("Idioma no encontrado.")
+            };
+
             using (var workbook = new XLWorkbook(rutaCatalogo))
             {
-                var worksheet = workbook.Worksheet("Espanol");
-                var filas = worksheet.RangeUsed().RowsUsed().Skip(1);
+                // Intentamos obtener la hoja; si no existe, lanzamos un error controlado
+                if (!workbook.Worksheets.TryGetWorksheet(hojaSeleccionada, out var worksheet))
+                {
+                    throw new KeyNotFoundException($"No se encontró la pestaña '{hojaSeleccionada}' en el archivo Excel.");
+                }
+
+                var rango = worksheet.RangeUsed();
+                if (rango == null) return listaResultado; // hoja vacía o sin rango usado
+
+                var filas = rango.RowsUsed().Skip(1);
 
                 foreach (var fila in filas)
                 {
@@ -138,21 +153,21 @@ namespace GeneradorVoucher_MP.Models
 
                 foreach (var act in actividades)
                 {
-                    double subtotalCalculado = (act.precioEntrada + act.precioTourAdulto) * datosCliente.CantidadAdultosCliente +
-                                              (act.precioEntrada + act.precioTourNino) * datosCliente.CantidadNinosCliente;
+                    double subtotalCalculado = (act.PrecioEntrada + act.PrecioTourAdulto) * datosCliente.CantidadAdultosCliente +
+                                              (act.PrecioEntrada + act.PrecioTourNino) * datosCliente.CantidadNinosCliente;
 
                     // Usamos un objeto anónimo para inyectar los datos en el SQL de Dapper
                     db.Execute(sqlActividad, new
                     {
                         ClienteId = nuevoClienteId,
-                        FechaActividad = act.fechaActividad,
-                        TipoActividad = act.tipoActividad,
-                        PickupActividad = act.pickupActividad,
-                        RegresoActividad = act.regresoActividad,
-                        ServicioActividad = act.incluyeActividad,
-                        PrecioEntrada = act.precioEntrada,
-                        PrecioTourAdulto = act.precioTourAdulto,
-                        PrecioTourNino = act.precioTourNino,
+                        FechaActividad = act.FechaActividad,
+                        TipoActividad = act.TipoActividad,
+                        PickupActividad = act.PickupActividad,
+                        RegresoActividad = act.RegresoActividad,
+                        ServicioActividad = act.IncluyeActividad,
+                        PrecioEntrada = act.PrecioEntrada,
+                        PrecioTourAdulto = act.PrecioTourAdulto,
+                        PrecioTourNino = act.PrecioTourNino,
                         Subtotal = subtotalCalculado
                     }, transaccion);
                 }
@@ -261,23 +276,23 @@ namespace GeneradorVoucher_MP.Models
                 foreach (var act in actividadesModificadas)
                 {
                     // Validamos que el usuario no haya dejado la fecha vacía en el DataGrid
-                    if (act.fechaActividad == null) continue;
+                    if (act.FechaActividad == null) continue;
 
                     // Recalculamos el subtotal dinámico de la fila basado en la nueva cantidad de pasajeros
-                    double subtotalCalculado = (act.precioEntrada + act.precioTourAdulto) * clienteModificado.CantidadAdultosCliente +
-                                              (act.precioEntrada + act.precioTourNino) * clienteModificado.CantidadNinosCliente;
+                    double subtotalCalculado = (act.PrecioEntrada + act.PrecioTourAdulto) * clienteModificado.CantidadAdultosCliente +
+                                              (act.PrecioEntrada + act.PrecioTourNino) * clienteModificado.CantidadNinosCliente;
 
                     db.Execute(sqlInsertActividad, new
                     {
                         ClienteId = idSeleccionado,
-                        FechaActividad = act.fechaActividad.Value, // .Value extrae el DateTime real del objeto anulable
-                        TipoActividad = act.tipoActividad,
-                        PickupActividad = act.pickupActividad,
-                        RegresoActividad = act.regresoActividad,
-                        ServicioActividad = act.incluyeActividad,
-                        PrecioEntrada = act.precioEntrada,
-                        PrecioTourAdulto = act.precioTourAdulto,
-                        PrecioTourNino = act.precioTourNino,
+                        FechaActividad = act.FechaActividad.Value, // .Value extrae el DateTime real del objeto anulable
+                        TipoActividad = act.TipoActividad,
+                        PickupActividad = act.PickupActividad,
+                        RegresoActividad = act.RegresoActividad,
+                        ServicioActividad = act.IncluyeActividad,
+                        PrecioEntrada = act.PrecioEntrada,
+                        PrecioTourAdulto = act.PrecioTourAdulto,
+                        PrecioTourNino = act.PrecioTourNino,
                         Subtotal = subtotalCalculado
                     }, transaction: transaccion);
                 }
@@ -344,18 +359,21 @@ namespace GeneradorVoucher_MP.Models
             {
                 // ESCENARIO 2: EL ARCHIVO YA EXISTE
                 workbook = new XLWorkbook(rutaArchivo);
-                worksheet = workbook.Worksheet("Viajes");
+                // Aseguramos existencia de la hoja
+                worksheet = workbook.Worksheets.Contains("Viajes") ? workbook.Worksheet("Viajes") : workbook.Worksheets.Add("Viajes");
             }
 
             // 2. ESCRITURA DE LOS DATOS
-            int nuevaFilaId = worksheet.LastRowUsed() == null ? 2 : worksheet.LastRowUsed().RowNumber() + 1;
+            var lastRow = worksheet.LastRowUsed();
+            int nuevaFilaId = lastRow == null ? 2 : lastRow.RowNumber() + 1;
+
             string fechaCreacion = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             foreach (var actividad in actividades)
             {
                 // Cálculo rápido del subtotal por fila (Ajusta la fórmula matemática según tus reglas de negocio)
-                double subtotal = (actividad.precioEntrada + actividad.precioTourAdulto) * datosCliente.CantidadAdultosCliente
-                    + (actividad.precioEntrada + actividad.precioTourNino) * datosCliente.CantidadNinosCliente;
+                double subtotal = (actividad.PrecioEntrada + actividad.PrecioTourAdulto) * datosCliente.CantidadAdultosCliente
+                    + (actividad.PrecioEntrada + actividad.PrecioTourNino) * datosCliente.CantidadNinosCliente;
 
                 worksheet.Cell(nuevaFilaId, 1).Value = idActividad;
                 worksheet.Cell(nuevaFilaId, 2).Value = fechaCreacion;
@@ -365,16 +383,16 @@ namespace GeneradorVoucher_MP.Models
                 worksheet.Cell(nuevaFilaId, 6).Value = datosCliente.FechaInicioCliente.ToString("yyyy-MM-dd");
                 worksheet.Cell(nuevaFilaId, 7).Value = datosCliente.TelefonoCliente;
 
-                worksheet.Cell(nuevaFilaId, 8).Value = actividad.fechaActividad.HasValue
-                    ? actividad.fechaActividad.Value.ToString("yyyy-MM-dd")
+                worksheet.Cell(nuevaFilaId, 8).Value = actividad.FechaActividad.HasValue
+                    ? actividad.FechaActividad.Value.ToString("yyyy-MM-dd")
                     : string.Empty;
-                worksheet.Cell(nuevaFilaId, 9).Value = actividad.tipoActividad;
-                worksheet.Cell(nuevaFilaId, 10).Value = actividad.pickupActividad;
-                worksheet.Cell(nuevaFilaId, 11).Value = actividad.regresoActividad;
-                worksheet.Cell(nuevaFilaId, 12).Value = actividad.incluyeActividad;
-                worksheet.Cell(nuevaFilaId, 13).Value = actividad.precioEntrada;
-                worksheet.Cell(nuevaFilaId, 14).Value = actividad.precioTourAdulto;
-                worksheet.Cell(nuevaFilaId, 15).Value = actividad.precioTourNino;
+                worksheet.Cell(nuevaFilaId, 9).Value = actividad.TipoActividad;
+                worksheet.Cell(nuevaFilaId, 10).Value = actividad.PickupActividad;
+                worksheet.Cell(nuevaFilaId, 11).Value = actividad.RegresoActividad;
+                worksheet.Cell(nuevaFilaId, 12).Value = actividad.IncluyeActividad;
+                worksheet.Cell(nuevaFilaId, 13).Value = actividad.PrecioEntrada;
+                worksheet.Cell(nuevaFilaId, 14).Value = actividad.PrecioTourAdulto;
+                worksheet.Cell(nuevaFilaId, 15).Value = actividad.PrecioTourNino;
                 worksheet.Cell(nuevaFilaId, 16).Value = subtotal;
                 worksheet.Cell(nuevaFilaId, 17).Value = SesionSistema.UsuarioActual; // Responsable de la sesión
 
