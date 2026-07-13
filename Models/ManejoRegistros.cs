@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Excel;
 using Dapper;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using GeneradorVoucher_MP.Enums;
 using Npgsql;
 using System;
@@ -10,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace GeneradorVoucher_MP.Models
 {
@@ -402,6 +400,118 @@ namespace GeneradorVoucher_MP.Models
             worksheet.Columns().AdjustToContents();
             workbook.SaveAs(rutaArchivo);
             workbook.Dispose();
+        }
+
+        public string ExportarRegistrosExcel()
+        {
+            string nombreArchivoExportado = $"PlanillaViajes_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            // crear carpeta para guardar los export 
+            string carpetaExport = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Export");
+            if (!Directory.Exists(carpetaExport))
+            {
+                Directory.CreateDirectory(carpetaExport);
+            }
+
+            string rutaDestino = Path.Combine(carpetaExport, nombreArchivoExportado);
+
+            string query = @"
+                SELECT 
+                    v.id,
+                    v.fecha_creacion,
+                    v.nombre,
+                    v.cantidad_adultos,
+                    v.cantidad_ninos,
+                    v.fecha_viaje,
+                    v.telefono,
+                    v.usuario_creacion,
+                    a.fecha_actividad,
+                    a.tipo_actividad,
+                    a.pickup_actividad,
+                    a.regreso_actividad,
+                    a.servicio_actividad,
+                    a.precio_entrada,
+                    a.precio_tour_adulto,
+                    a.precio_tour_nino
+                FROM clientes v
+                LEFT JOIN actividades a ON v.id = a.cliente_id
+                ORDER BY v.id DESC, a.fecha_actividad ASC;";
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("General Vouchers");
+
+                // 1. Estilizar y crear Encabezados
+                string[] encabezados = {
+                    "Voucher_ID", "Fecha Creación", "Cliente", "Cantidad_Adultos", "Cantidad_Niños",
+                    "Fecha_Inicio_Viaje", "Teléfono", "Usuario_responsable" ,"Fecha Actividad", "Actividad"
+                    ,"Pick-up", "Retorno","Incluye", "Precio Entrada", "Precio Adulto",
+                    "Precio Niño"
+                };
+
+                for (int i = 0; i < encabezados.Length; i++)
+                {
+                    var celda = worksheet.Cell(1, i + 1);
+                    celda.Value = encabezados[i];
+                    celda.Style.Font.Bold = true;
+                    celda.Style.Font.FontColor = XLColor.White;
+                    celda.Style.Fill.BackgroundColor = XLColor.FromHtml("#1F4E78"); // Azul corporativo
+                    celda.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+
+                // 2. Conectarse a la Base de Datos y rellenar filas
+                int filaActual = 2;
+                using (var conn = new NpgsqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            worksheet.Cell(filaActual, 1).Value = reader.GetInt32(0); // ID
+                            if (!reader.IsDBNull(1)) worksheet.Cell(filaActual, 2).Value = reader.GetDateTime(1).ToString("dd/MM/yyyy HH:mm"); // fecha creacion
+                            worksheet.Cell(filaActual, 3).Value = reader.IsDBNull(2) ? string.Empty : reader.GetString(2); // Cliente
+                            worksheet.Cell(filaActual, 4).Value = reader.IsDBNull(3) ? 0 : reader.GetInt32(3); // Adultos
+                            worksheet.Cell(filaActual, 5).Value = reader.IsDBNull(4) ? 0 : reader.GetInt32(4); // Niños
+                            if (!reader.IsDBNull(5)) worksheet.Cell(filaActual, 6).Value = reader.GetDateTime(5).ToString("dd/MM/yyyy"); // Fecha de viaje
+                            worksheet.Cell(filaActual, 7).Value = reader.IsDBNull(6) ? string.Empty : reader.GetString(6); // Teléfono
+                            worksheet.Cell(filaActual, 8).Value = reader.IsDBNull(7) ? string.Empty : reader.GetString(7); // usuario responsable
+
+
+                            // Datos de la Actividad (Provenientes del LEFT JOIN)
+                            if (!reader.IsDBNull(8)) worksheet.Cell(filaActual, 9).Value = reader.GetDateTime(8).ToString("dd/MM/yyyy"); // Fecha Actividad
+                            worksheet.Cell(filaActual, 10).Value = reader.IsDBNull(9) ? "Sin Actividades" : reader.GetString(9); // Tipo de Actividad
+                            worksheet.Cell(filaActual, 11).Value = reader.IsDBNull(10) ? string.Empty : reader.GetString(10); // pickup
+                            worksheet.Cell(filaActual, 12).Value = reader.IsDBNull(11) ? string.Empty : reader.GetString(11); // regreso
+                            worksheet.Cell(filaActual, 13).Value = reader.IsDBNull(12) ? "Sin Actividades" : reader.GetString(12); // incluye
+
+                            // Precios (Formatos numéricos)
+                            worksheet.Cell(filaActual, 14).Value = reader.IsDBNull(13) ? 0.0 : reader.GetDouble(13); //entrada
+                            worksheet.Cell(filaActual, 15).Value = reader.IsDBNull(14) ? 0.0 : reader.GetDouble(14); //precio tour adulto
+                            worksheet.Cell(filaActual, 16).Value = reader.IsDBNull(15) ? 0.0 : reader.GetDouble(15); // precio tour niño
+
+
+                            // Aplicar formato de moneda a las columnas de dinero (Columnas 12, 13 y 14)
+                            worksheet.Cell(filaActual, 14).Style.NumberFormat.Format = "$#,##0.00";
+                            worksheet.Cell(filaActual, 15).Style.NumberFormat.Format = "$#,##0.00";
+                            worksheet.Cell(filaActual, 16).Style.NumberFormat.Format = "$#,##0.00";
+
+                            filaActual++;
+                        }
+                    }
+                }
+
+                // 3. Ajustes de diseño automáticos
+                worksheet.Columns().AdjustToContents(); // Autoajustar ancho de columnas
+                worksheet.SheetView.FreezeRows(1);    // Congelar la fila de encabezados
+
+                // 4. Guardar archivo en el disco
+                workbook.SaveAs(rutaDestino);
+            }
+
+            return rutaDestino; // Retornamos la ruta por si quieres abrirlo o mostrar un aviso
+
         }
     }
 }

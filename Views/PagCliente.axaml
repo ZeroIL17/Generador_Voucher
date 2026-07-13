@@ -18,7 +18,7 @@
                 HorizontalAlignment="Center"
                 Background="#F0F4F8"
                 CornerRadius="10"
-                Width="520">
+                Width="600">
 
             <StackPanel>
 
@@ -96,7 +96,13 @@
                         BorderBrush="#DDDDDD"
                         Margin="0,10,0,0"
                         Padding="20,14">
-                    <Grid ColumnDefinitions="Auto,*, Auto, Auto, Auto" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="Auto,*, Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="10" RowDefinitions="Auto, Auto">
+
+                        <Button Grid.Column="0"
+                                Grid.Row="1"
+                                Content="Exportar registros"
+                                Name="btnExportarRegistros"
+                                Click="btnExportarRegistros_Click"/>
 
                         <Button Grid.Column="0"
                                 Name="btnVolverInicio"
@@ -106,9 +112,9 @@
                         <StackPanel Grid.Column="1" /> <!-- espaciador -->
 
                         <Button Grid.Column="2"
-                                Name="btnRegistros"
-                                Content="Ver registros"
-                                Click="btnRegistros_Click" />
+                                Name="btnVerCarpeta"
+                                Content="Ver carpeta"
+                                Click="btnVerCarpeta_Click" />
 
                         <Button Grid.Column="3"
                                 Name="btnModificarPag"
