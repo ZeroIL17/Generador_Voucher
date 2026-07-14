@@ -1,6 +1,8 @@
 ﻿using ClosedXML.Excel;
 using Dapper;
 using GeneradorVoucher_MP.Enums;
+using GeneradorVoucher_MP.Views;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ namespace GeneradorVoucher_MP.Models
     public class ManejoRegistros
     {
         // Tu cadena de conexión segura provista por tu hosting de Postgres
-        private readonly string _connectionString = "Host=aws-1-us-west-2.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.jaqvtgzkrajesvbqublf;Password=CAMINANDES_2026;SSL Mode=Require;Timeout=30;Command Timeout=30;";
+        private readonly string _connectionString = App.Configuration.GetConnectionString("PostgresConnection");
 
         // Método auxiliar para abrir la conexión de forma limpia
         private IDbConnection ObtenerConexion() => new NpgsqlConnection(_connectionString);

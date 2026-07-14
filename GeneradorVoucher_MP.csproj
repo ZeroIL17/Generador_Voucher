@@ -28,6 +28,8 @@
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
 		<PackageReference Include="Dapper" Version="2.1.79" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
 		<PackageReference Include="Npgsql" Version="10.0.3" />
 		<PackageReference Include="QuestPDF" Version="2026.6.0" />
 	</ItemGroup>
@@ -68,6 +70,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Update="appsettings.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="imagen_pie_pdf.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -87,5 +92,9 @@
 
 	<ItemGroup>
 	  <AvaloniaResource Remove="icono_programa.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="GeneradorVoucher_MP.parcel" />
 	</ItemGroup>
 </Project>
