@@ -116,7 +116,7 @@ public partial class PagModificar : UserControl
 
     private void btnVolverPagCliente_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        this.IrPagina(new PagCliente());
+        this.IrPagina(new PagPrincipal());
     }
 
     private async void btnActualizarVoucher_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

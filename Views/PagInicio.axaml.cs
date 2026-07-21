@@ -18,6 +18,11 @@ public partial class PagInicio : UserControl
     {
         InitializeComponent();
         CargarUsuarios();
+
+        if (SesionSistema.UsuarioActual != "Sin Usuario")
+        {
+            cmbSelectUsuario.SelectedItem = SesionSistema.UsuarioActual;
+        }
     }
 
     private void btnPagCliente_Click(object? sender, RoutedEventArgs e)
@@ -43,7 +48,7 @@ public partial class PagInicio : UserControl
             SesionSistema.UsuarioActual = usuario;
         }
 
-        this.IrPagina(new PagCliente());
+        this.IrPagina(new PagPrincipal());
 
     }
 

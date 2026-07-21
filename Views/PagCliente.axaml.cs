@@ -74,36 +74,6 @@ public partial class PagCliente : UserControl
 
     private void btnVolverInicio_Click(object? sender, RoutedEventArgs e)
     {
-        this.IrPagina(new PagInicio());
-    }
-
-    private async void btnExportarRegistros_Click(object? sender, RoutedEventArgs e)
-    {
-        try
-        {
-            // Deshabilitamos el botón momentáneamente
-            btnExportarRegistros.IsEnabled = false;
-
-            // Ejecutamos la consulta y creación del Excel en un hilo de fondo
-            string rutaArchivoReporte = await Task.Run(() => manejoRegistros.ExportarRegistrosExcel());
-
-            this.MostrarAlerta("Exportación Exitosa",
-                               $"El reporte se guardó correctamente en:\n{Path.GetFileName(rutaArchivoReporte)}",
-                               NotificationType.Success);
-
-            // Opcional: Si quieres abrir el Excel automáticamente al finalizar
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(rutaArchivoReporte)
-            {
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            this.MostrarAlerta("Error al Exportar", $"Ocurrió un detalle: {ex.Message}", NotificationType.Error);
-        }
-        finally
-        {
-            btnExportarRegistros.IsEnabled = true;
-        }
+        this.IrPagina(new PagPrincipal());
     }
 }

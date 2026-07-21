@@ -99,27 +99,11 @@
                     <Grid ColumnDefinitions="Auto,*, Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="10" RowDefinitions="Auto, Auto">
 
                         <Button Grid.Column="0"
-                                Grid.Row="1"
-                                Content="Exportar registros"
-                                Name="btnExportarRegistros"
-                                Click="btnExportarRegistros_Click"/>
-
-                        <Button Grid.Column="0"
                                 Name="btnVolverInicio"
-                                Content="Volver"
+                                Content="← Volver"
                                 Click="btnVolverInicio_Click"/>
 
                         <StackPanel Grid.Column="1" /> <!-- espaciador -->
-
-                        <Button Grid.Column="2"
-                                Name="btnVerCarpeta"
-                                Content="Ver carpeta"
-                                Click="btnVerCarpeta_Click" />
-
-                        <Button Grid.Column="3"
-                                Name="btnModificarPag"
-                                Content="Modificar"
-                                Click="btnModificarPag_Click" />
 
                         <Button Grid.Column="4"
                                 Name="btnIngresarDatos"

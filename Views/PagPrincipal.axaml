@@ -1,0 +1,240 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.PagPrincipal">
+  <Panel>
+
+        <!-- Fondo -->
+        <Image Source="avares://GeneradorVoucher_MP/Assets/foto_mar_personas.jpg"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" />
+        <Border Background="#60000000" />
+
+        <Border VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="#F0F4F8"
+                CornerRadius="10"
+                Width="700">
+            <ScrollViewer Margin="">
+            <StackPanel Margin="0" Spacing="0">
+
+                <Border Background="#1F4E78"
+                        CornerRadius="10,10,0,0"
+                        Padding="20,14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Grid.Column="0"
+                                   Text="Menú Principal"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="White"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1"
+                                   Name="labelUsuario"
+                                   FontSize="12"
+                                   Foreground="#AAC8E8"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Height="1" Background="#DDDDDD"/>
+                <StackPanel Margin="15">
+                    <!-- Sección: funciones principales -->
+                <TextBlock Text="FUNCIONES PRINCIPALES"
+                           FontSize="11"
+                           Foreground="#AAAAAA"
+                           LetterSpacing="1.5"
+                           Margin="0,0,0,12" />
+
+                <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="12" Margin="0,0,0,24">
+
+                    <!-- Nuevo voucher -->
+                    <Button Grid.Column="0"
+                            Name="btnPaginaCliente"
+                            Click="btnPaginaCliente_Click"
+                            Background="White"
+                            BorderThickness="0"
+                            Padding="18"
+                            CornerRadius="12"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Cursor="Hand">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F0F4F8" />
+                            </Style>
+                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#DBEAFE" />
+                            </Style>
+                        </Button.Styles>
+                        <StackPanel Spacing="10">
+                            <Border Width="44" Height="44" CornerRadius="10"
+                                    Background="#DBEAFE" HorizontalAlignment="Left">
+                                <PathIcon Data="{StaticResource document_add_regular}"
+                                            Width="20" Height="20"
+                                            Foreground="#1F4E78"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Nuevo voucher"
+                                       TextWrapping="Wrap"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="#1F4E78" />
+                            <TextBlock Text="Registrar cliente y agregar actividades"
+                                        FontSize="11"
+                                        Foreground="#888888"
+                                        TextWrapping="Wrap" />
+                            <TextBlock Text="Abrir →"
+                                        FontSize="12"
+                                        Foreground="#1F4E78" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Modificar voucher -->
+                    <Button Grid.Column="1"
+                            Name="btnModificarVoucher"
+                            Click="btnModificarVoucher_Click"
+                            Background="White"
+                            BorderThickness="0"
+                            Padding="18"
+                            CornerRadius="12"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Cursor="Hand">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F0F4F8" />
+                            </Style>
+                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#D1FAE5" />
+                            </Style>
+                        </Button.Styles>
+                        <StackPanel Spacing="10">
+                            <Border Width="44" Height="44" CornerRadius="10"
+                                    Background="#D1FAE5" HorizontalAlignment="Left">
+                                <PathIcon Data="{StaticResource document_edit_regular}"
+                                            Width="20" Height="20"
+                                            Foreground="#065F46"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Modificar voucher"
+                                       TextWrapping="Wrap"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="#065F46" />
+                            <TextBlock Text="Editar datos de un voucher existente"
+                                        FontSize="11"
+                                        Foreground="#888888"
+                                        TextWrapping="Wrap" />
+                            <TextBlock Text="Abrir →"
+                                        FontSize="12"
+                                        Foreground="#065F46" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Confirmación voucher -->
+                    <Button Grid.Column="2"
+                            Name="btnPaginaConfirmacion"
+                            Click="btnPaginaConfirmacion_Click"
+                            Background="White"
+                            BorderThickness="0"
+                            Padding="18"
+                            CornerRadius="12"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                             VerticalAlignment="Top"
+                            Cursor="Hand">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F0F4F8" />
+                            </Style>
+                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#FEF3C7" />
+                            </Style>
+                        </Button.Styles>
+                        <StackPanel Spacing="10">
+                            <Border Width="44" Height="44" CornerRadius="10"
+                                    Background="#FEF3C7" HorizontalAlignment="Left">
+                                <PathIcon Data="{StaticResource payment_regular}"
+                                            Width="20" Height="20"
+                                            Foreground="#92400E"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Confirmación voucher"
+                                       TextWrapping="Wrap"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="#92400E" />
+                            <TextBlock Text="Registrar confirmación y abono de voucher"
+                                        FontSize="11"
+                                        Foreground="#888888"
+                                        TextWrapping="Wrap" />
+                            <TextBlock Text="Abrir →"
+                                        FontSize="12"
+                                        Foreground="#92400E" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Exportar registros -->
+                    <Button Grid.Column="3"
+                            Name="btnExportarDatos"
+                            Click="btnExportarDatos_Click"
+                            Background="White"
+                            BorderThickness="0"
+                            Padding="18"
+                            CornerRadius="12"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                             VerticalAlignment="Top"
+                            Cursor="Hand">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F0F4F8" />
+                            </Style>
+                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#EDE9FE" />
+                            </Style>
+                        </Button.Styles>
+                        <StackPanel Spacing="10">
+                            <Border Width="44" Height="44" CornerRadius="10"
+                                    Background="#EDE9FE" HorizontalAlignment="Left">
+                                <PathIcon Data="{StaticResource cloud_download_regular}"
+                                            Width="20" Height="20"
+                                            Foreground="#5B21B6"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Exportar registros"
+                                       TextWrapping="Wrap"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="#5B21B6" />
+                            <TextBlock Text="Generar reporte de vouchers en Excel"
+                                        FontSize="11"
+                                        Foreground="#888888"
+                                        TextWrapping="Wrap" />
+                            <TextBlock Text="Abrir →"
+                                        FontSize="12"
+                                        Foreground="#5B21B6" />
+                        </StackPanel>
+                    </Button>
+
+                </Grid>
+                <Border Height="1" Background="#DDDDDD" Margin="0,0,0,20" />
+                    <Button
+                        Content="← Volver"
+                        Name="btnVolverPagInicio"
+                        Click="btnVolverPagInicio_Click"/>
+                </StackPanel>    
+            </StackPanel>
+        </ScrollViewer>
+        </Border>
+    </Panel>
+</UserControl>
