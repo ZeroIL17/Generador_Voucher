@@ -72,9 +72,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="appsettings.json">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 		<None Update="imagen_pie_pdf.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
