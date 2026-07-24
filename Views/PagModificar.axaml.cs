@@ -7,6 +7,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using GeneradorVoucher;
 using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
+using GeneradorVoucher_MP.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,7 +19,6 @@ namespace GeneradorVoucher_MP;
 
 public partial class PagModificar : UserControl
 {
-    private readonly ManejoRegistros manejoRegistros = new ManejoRegistros();
     private readonly ObservableCollection<DatosActividad> actividadesMostradas = new();
     private readonly ObservableCollection<VoucherLookup> vouchersDisponibles = new();
     private List<ActividadPreestablecida> catalogoOpciones = new();
@@ -26,7 +26,7 @@ public partial class PagModificar : UserControl
 
     public ObservableCollection<DatosActividad> DatosActividades => actividadesMostradas;
     public ObservableCollection<VoucherLookup> VouchersDisponibles => vouchersDisponibles;
-    public ManejoRegistros ManejoRegistros => manejoRegistros;
+    public ManejoRegistros ManejoRegistros => App.RegistrosService;
     public List<ActividadPreestablecida> CatalogoOpciones => catalogoOpciones;
 
     public record IdiomaOpcion(IdiomaVoucher Value, string Label);
@@ -60,7 +60,7 @@ public partial class PagModificar : UserControl
     {
         try
         {
-            var listaVouchers = await Task.Run(() => manejoRegistros.CargarVouchersDB());
+            var listaVouchers = await Task.Run(() => App.RegistrosService.CargarVouchersDB());
             vouchersDisponibles.Clear();
             foreach (var voucher in listaVouchers)
             {
@@ -80,7 +80,7 @@ public partial class PagModificar : UserControl
 
         try
         {
-            var (cliente, listaActividades) = manejoRegistros.ObtenerDetalleVoucher(voucherSeleccionado.Id);
+            var (cliente, listaActividades) = App.RegistrosService.ObtenerDetalleVoucher(voucherSeleccionado.Id);
 
             textNombreClienteModificar.Text = cliente.NombreCliente;
             textAdultosModificar.Value = cliente.CantidadAdultosCliente;
@@ -176,7 +176,7 @@ public partial class PagModificar : UserControl
                 TelefonoCliente = textTelefonoModificar.Text
             };
 
-            manejoRegistros.ActualizarVoucher(voucherSeleccionado.Id, clienteModificado, actividadesMostradas);
+            App.RegistrosService.ActualizarVoucher(voucherSeleccionado.Id, clienteModificado, actividadesMostradas);
             this.MostrarAlerta("Operación Completada", "Voucher modificado y PDF actualizado con éxito.", NotificationType.Success);
             await GeneradorPdf.GenerarReportePDF(voucherSeleccionado.Id, clienteModificado, actividadesMostradas, idiomaSeleccionado, this);
 
@@ -223,7 +223,7 @@ public partial class PagModificar : UserControl
     {
         try
         {
-            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades(idioma);
+            catalogoOpciones = App.RegistrosService.ObtenerCatalogoActividades(idioma);
             cmbTourServicioActividadModificar.ItemsSource = catalogoOpciones;
         }
         catch (FileNotFoundException)

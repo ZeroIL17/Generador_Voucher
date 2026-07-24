@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Interactivity;
 using GeneradorVoucher_MP.Models;
+using GeneradorVoucher_MP.Views;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ namespace GeneradorVoucher_MP;
 
 public partial class PagCliente : UserControl
 {
-    private readonly ManejoRegistros manejoRegistros = new ManejoRegistros();
     public PagCliente()
     {
         InitializeComponent();
@@ -59,7 +59,7 @@ public partial class PagCliente : UserControl
     {
         try
         {
-            manejoRegistros.AbrirRegistros();
+            App.RegistrosService.AbrirRegistros();
         }
         catch (Exception ex)
         {

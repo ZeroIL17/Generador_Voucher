@@ -10,6 +10,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using GeneradorVoucher;
 using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
+using GeneradorVoucher_MP.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,7 +22,6 @@ namespace GeneradorVoucher_MP;
 
 public partial class PagActividad : UserControl
 {
-    private readonly ManejoRegistros manejoRegistros = new ManejoRegistros();
     private List<ActividadPreestablecida> catalogoOpciones = new();
     private readonly ObservableCollection<DatosActividad> datosActividades = new();
     private readonly DatosCliente? clienteActual;
@@ -65,7 +65,7 @@ public partial class PagActividad : UserControl
     {
         try
         {
-            catalogoOpciones = manejoRegistros.ObtenerCatalogoActividades(idioma);
+            catalogoOpciones = App.RegistrosService.ObtenerCatalogoActividades(idioma);
             cmbTourServicioActividad.ItemsSource = catalogoOpciones;
         }
         catch (FileNotFoundException)
@@ -170,7 +170,7 @@ public partial class PagActividad : UserControl
 
         try
         {
-            manejoRegistros.GuardarViajeExcel(clienteActual, datosActividades);
+            App.RegistrosService.GuardarViajeExcel(clienteActual, datosActividades);
         }
         catch (Exception ex)
         {
@@ -191,7 +191,7 @@ public partial class PagActividad : UserControl
                 idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
             }
 
-            int idActividad = manejoRegistros.GuardarViajeDB(clienteActual, datosActividades);
+            int idActividad = App.RegistrosService.GuardarViajeDB(clienteActual, datosActividades);
             this.MostrarAlerta("Éxito", $"¡Todo guardado con éxito! Se registró con el ID: {idActividad}", NotificationType.Success);
             await GeneradorPdf.GenerarReportePDF(idActividad, clienteActual, datosActividades, idiomaSeleccionado, this);
 

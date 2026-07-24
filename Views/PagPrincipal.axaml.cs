@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Markup.Xaml;
 using GeneradorVoucher_MP.Models;
+using GeneradorVoucher_MP.Views;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -11,8 +12,6 @@ namespace GeneradorVoucher_MP;
 
 public partial class PagPrincipal : UserControl
 {
-    private readonly ManejoRegistros manejoRegistros = new ManejoRegistros();
-
     public PagPrincipal()
     {
         InitializeComponent();
@@ -46,7 +45,7 @@ public partial class PagPrincipal : UserControl
             btnExportarDatos.IsEnabled = false;
 
             // Ejecutamos la consulta y creación del Excel en un hilo de fondo
-            string rutaArchivoReporte = await Task.Run(() => manejoRegistros.ExportarRegistrosExcel());
+            string rutaArchivoReporte = await Task.Run(() => App.RegistrosService.ExportarRegistrosExcel());
 
             this.MostrarAlerta("Exportación Exitosa",
                                $"El reporte se guardó correctamente en:\n{Path.GetFileName(rutaArchivoReporte)}",

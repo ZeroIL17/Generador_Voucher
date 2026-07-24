@@ -17,7 +17,8 @@ namespace GeneradorVoucher_MP.Models
     public class ManejoRegistros
     {
         // Tu cadena de conexión segura provista por tu hosting de Postgres
-        private readonly string _connectionString = App.Configuration.GetConnectionString("PostgresConnection");
+        private static readonly string BaseConnectionString = "Host=aws-1-us-west-2.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.jaqvtgzkrajesvbqublf;SSL Mode=Require;Timeout=30;Command Timeout=30;";
+        private readonly string _connectionString;
 
         // Método auxiliar para abrir la conexión de forma limpia
         private IDbConnection ObtenerConexion() => new NpgsqlConnection(_connectionString);
@@ -25,9 +26,24 @@ namespace GeneradorVoucher_MP.Models
         private readonly string rutaArchivo;
         readonly string rutaCarpetaDirectorio = AppDomain.CurrentDomain.BaseDirectory;
 
-        public ManejoRegistros(string nombreArchivo = "PlanillaViajes.xlsx")
+        public ManejoRegistros(string password)
         {
-            rutaArchivo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nombreArchivo);
+            _connectionString =  $"{BaseConnectionString}Password={password}";
+        }
+
+        public static bool ProbarConexion(string password)
+        {
+            try
+            {
+                string connString = $"{BaseConnectionString}Password={password};";
+                using var conn = new NpgsqlConnection(connString);
+                conn.Open();
+                return true; // Conexión exitosa
+            }
+            catch
+            {
+                return false; // Contraseña incorrecta o sin internet
+            }
         }
 
         public void AbrirRegistros()
