@@ -23,7 +23,7 @@ namespace GeneradorVoucher_MP.Models
         // Método auxiliar para abrir la conexión de forma limpia
         private IDbConnection ObtenerConexion() => new NpgsqlConnection(_connectionString);
 
-        private readonly string rutaArchivo;
+        private readonly string rutaArchivo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Registro_Cotizaciones.xlsx");
         readonly string rutaCarpetaDirectorio = AppDomain.CurrentDomain.BaseDirectory;
 
         public ManejoRegistros(string password)

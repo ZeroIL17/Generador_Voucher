@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using AvaloniaApplication1.Views;
 using GeneradorVoucher_MP.Models;
+using GeneradorVoucher_MP.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace GeneradorVoucher_MP;
 public partial class PagInicio : UserControl
 {
     private readonly ManejoUsuarios manejoUsuarios = new ManejoUsuarios();
+    public ManejoRegistros ManejoRegistros => App.RegistrosService;
+
     public PagInicio()
     {
         InitializeComponent();
@@ -66,5 +69,5 @@ public partial class PagInicio : UserControl
                     $"No se pudieron cargar los operadores del sistema: {ex.Message}",
                     NotificationType.Error);
         }
-    }
+    }   
 }

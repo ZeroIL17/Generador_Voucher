@@ -18,7 +18,7 @@ namespace GeneradorVoucher_MP.Views
     public partial class App : Application
     {
         public static IConfiguration? Configuration { get; private set; }
-        public static ManejoRegistros? RegistrosService { get; private set; }
+        public static ManejoRegistros RegistrosService { get; private set; } = null!;
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);

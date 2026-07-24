@@ -170,16 +170,6 @@ public partial class PagActividad : UserControl
 
         try
         {
-            App.RegistrosService.GuardarViajeExcel(clienteActual, datosActividades);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex);
-            this.MostrarAlerta("Error Crítico", $"Ocurrió un problema al procesar el registro: {ex.Message}", NotificationType.Error);
-        }
-
-        try
-        {
 
             IdiomaVoucher idiomaSeleccionado;
             if (cmbIdiomaVoucherActividad.SelectedValue is IdiomaOpcion idiomaOpcion)
@@ -194,6 +184,16 @@ public partial class PagActividad : UserControl
             int idActividad = App.RegistrosService.GuardarViajeDB(clienteActual, datosActividades);
             this.MostrarAlerta("Éxito", $"¡Todo guardado con éxito! Se registró con el ID: {idActividad}", NotificationType.Success);
             await GeneradorPdf.GenerarReportePDF(idActividad, clienteActual, datosActividades, idiomaSeleccionado, this);
+
+            try
+            {
+                App.RegistrosService.GuardarViajeExcel(clienteActual, datosActividades, idActividad);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                this.MostrarAlerta("Error al guardar Excel", $"Ocurrió un problema al procesar el registro: {ex.Message}", NotificationType.Error);
+            }
 
             cmbIdiomaVoucherActividad.IsEnabled = true;
             this.IrPagina(new PagCliente());
