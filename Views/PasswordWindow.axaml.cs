@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using GeneradorVoucher_MP.Models;
 
 namespace GeneradorVoucher_MP.Views
@@ -43,7 +45,7 @@ namespace GeneradorVoucher_MP.Views
         private void MostrarError(string mensaje)
         {
             lblError.Text = mensaje;
-            lblError.IsVisible = true;
+            panelError.IsVisible = true;
         }
     }
 }

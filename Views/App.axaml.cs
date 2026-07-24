@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
@@ -26,9 +27,11 @@ namespace GeneradorVoucher_MP.Views
         public override async void OnFrameworkInitializationCompleted()
         {
             QuestPDF.Settings.License = LicenseType.Community;
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 string? passwordValida = PasswordStorage.ObtenerPassword();
+
                 if (!string.IsNullOrEmpty(passwordValida))
                 {
                     bool conexionOk = ManejoRegistros.ProbarConexion(passwordValida);
@@ -39,59 +42,64 @@ namespace GeneradorVoucher_MP.Views
                     }
                 }
 
-                // Si no hay contraseña válida, mostrar PasswordWindow antes de crear MainWindow
                 if (string.IsNullOrEmpty(passwordValida))
                 {
-                    var passWindow = new PasswordWindow();
-
-                    // Mostrar la ventana sin owner para evitar la excepción
-                    passWindow.Show();
-
-                    // Esperar a que la ventana se cierre y obtener un posible resultado
-                    var tcs = new System.Threading.Tasks.TaskCompletionSource<bool?>();
-
-                    void ClosedHandler(object? s, System.EventArgs e)
+                    // Ventana temporal visible pero fuera de pantalla
+                    var ventanaTemporal = new Window
                     {
-                        passWindow.Closed -= ClosedHandler;
-                        bool? res = null;
-                        // Intentar leer una propiedad pública DialogResult si existe
-                        var prop = passWindow.GetType().GetProperty("DialogResult");
-                        if (prop != null)
-                        {
-                            res = prop.GetValue(passWindow) as bool?;
-                        }
-                        tcs.TrySetResult(res);
-                    }
+                        Width = 0,
+                        Height = 0,
+                        MinWidth = 0,
+                        MinHeight = 0,
+                        WindowStartupLocation = WindowStartupLocation.Manual,
+                        Position = new PixelPoint(-9999, -9999),
+                        ShowInTaskbar = false,
+                        Opacity = 0
+                    };
 
-                    passWindow.Closed += ClosedHandler;
-                    bool? resultado = await tcs.Task;
+                    desktop.MainWindow = ventanaTemporal;
+                    base.OnFrameworkInitializationCompleted();  // base con ventana temporal activa y visible
+                    ventanaTemporal.Show();
+
+                    // Ahora ShowDialog funciona porque el owner es visible
+                    var passWindow = new PasswordWindow();
+                    bool? resultado = await passWindow.ShowDialog<bool?>(ventanaTemporal);
 
                     if (resultado == true)
                     {
                         passwordValida = passWindow.PassIngresada;
+                        RegistrosService = new ManejoRegistros(passwordValida);
+
+                        var mainWindow = new MainWindow
+                        {
+                            DataContext = new MainWindowViewModel()
+                        };
+
+                        desktop.MainWindow = mainWindow;
+                        mainWindow.Show();
+                        ventanaTemporal.Close();
                     }
                     else
                     {
-                        // Si el usuario cierra la ventana de contraseña, se apaga la app
                         desktop.Shutdown();
-                        return;
                     }
+
+                    return;
                 }
 
-                // Crear y asignar la MainWindow una vez obtenida la contraseña
-                desktop.MainWindow = new MainWindow()
+                // Contraseña guardada válida → MainWindow directo
+                RegistrosService = new ManejoRegistros(passwordValida);
+                desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel()
                 };
 
                 base.OnFrameworkInitializationCompleted();
-
-                RegistrosService = new ManejoRegistros(passwordValida);
-
-                return; // Ya hemos llamado a base y terminado la inicialización para el caso desktop
             }
-
-            base.OnFrameworkInitializationCompleted();
+            else
+            {
+                base.OnFrameworkInitializationCompleted();
+            }
         }
     }
 }
