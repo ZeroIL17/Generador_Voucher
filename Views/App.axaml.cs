@@ -7,6 +7,7 @@ using AvaloniaApplication1.ViewModels;
 using AvaloniaApplication1.Views;
 using Microsoft.Extensions.Configuration;
 using QuestPDF.Infrastructure;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -20,7 +21,7 @@ namespace GeneradorVoucher_MP.Views
             AvaloniaXamlLoader.Load(this);
 
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
             Configuration = builder.Build();
