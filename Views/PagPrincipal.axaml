@@ -228,10 +228,21 @@
 
                 </Grid>
                 <Border Height="1" Background="#DDDDDD" Margin="0,0,0,20" />
-                    <Button
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Button Grid.Column="0"
                         Content="← Volver"
                         Name="btnVolverPagInicio"
                         Click="btnVolverPagInicio_Click"/>
+
+                        <Button Grid.Column="2"
+                                Content="Ver Exportaciones"
+                                Name="btnAbrirCarpeta"
+                                Click="btnAbrirCarpeta_Click"
+                                Background="#1F4E78"
+                                Foreground="White"
+                                />
+                    </Grid>
+                    
                 </StackPanel>    
             </StackPanel>
         </ScrollViewer>

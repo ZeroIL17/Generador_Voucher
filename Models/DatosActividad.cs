@@ -14,5 +14,8 @@ namespace GeneradorVoucher_MP.Models
         public double PrecioEntrada { get; set; }
         public double PrecioTourAdulto { get; set; }
         public double PrecioTourNino { get; set; }
+        public double SubtotalActividad { get; set; }
+        public float DescuentoActividad { get; set; } = 0.0f;
+        public double TotalActividad { get; set; }
     }
 }

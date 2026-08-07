@@ -9,6 +9,7 @@ using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
 using GeneradorVoucher_MP.Views;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -36,7 +37,12 @@ public partial class PagModificar : UserControl
         new IdiomaOpcion(IdiomaVoucher.Ingles, "Inglés"),
         new IdiomaOpcion(IdiomaVoucher.Portugues, "Portugués")
     };
-
+    public ObservableCollection<MonedasPago> MonedasPagoDisponibles { get; } = new ObservableCollection<MonedasPago>
+    {
+        MonedasPago.CLP,
+        MonedasPago.R,
+        MonedasPago.USD
+    };
     public PagModificar()
     {
         InitializeComponent();
@@ -87,12 +93,15 @@ public partial class PagModificar : UserControl
             textNinosModificar.Value = cliente.CantidadNinosCliente;
             textFechaInicioModificar.SelectedDate = cliente.FechaInicioCliente;
             textTelefonoModificar.Text = cliente.TelefonoCliente;
+            
 
             actividadesMostradas.Clear();
 
             foreach (var actividad in listaActividades)
             {
                 actividadesMostradas.Add(actividad);
+                textDescuentoModificar.Text = actividad.DescuentoActividad.ToString(); // Muestra el descuento como porcentaje
+                Debug.WriteLine(actividad.TotalActividad);
             }
 
             SetInputEnabled(true);
@@ -112,6 +121,7 @@ public partial class PagModificar : UserControl
         textFechaInicioModificar.IsEnabled = fieldState;
         textTelefonoModificar.IsEnabled = fieldState;
         cmbTourServicioActividadModificar.IsEnabled = fieldState;
+        textDescuentoModificar.IsEnabled = fieldState;
     }
 
     private void btnVolverPagCliente_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -144,6 +154,23 @@ public partial class PagModificar : UserControl
             return;
         }
 
+        if (actividadesMostradas.Count == 0)
+        {
+            this.MostrarAlerta("Sin Actividades", "Por favor, agrega al menos una actividad antes de guardar.", NotificationType.Warning);
+            return;
+        }
+
+        if (!double.TryParse(textDescuentoModificar.Text, out double descuento) || descuento < 0 || descuento > 100)
+        {
+            this.MostrarAlerta("Descuento Inválido", "Por favor, ingresa un valor de descuento válido entre 0 y 100.", NotificationType.Warning);
+            textDescuentoModificar.MarcarError();
+            return;
+        }
+        else if (string.IsNullOrWhiteSpace(textDescuentoModificar.Text))
+        {
+            descuento = 0;
+        }
+
         foreach (var act in actividadesMostradas)
         {
             if (act.FechaActividad == null || act.FechaActividad == DateTime.MinValue)
@@ -153,6 +180,8 @@ public partial class PagModificar : UserControl
                                    NotificationType.Warning);
                 return; // Detiene la ejecución completa del guardado
             }
+
+            act.DescuentoActividad = (float)descuento;
         }
 
         try
@@ -176,14 +205,24 @@ public partial class PagModificar : UserControl
                 TelefonoCliente = textTelefonoModificar.Text
             };
 
+            MonedasPago monedasSeleccionada;
+            if (cmbMonedaSelect.SelectedItem is MonedasPago moneda)
+            {
+                monedasSeleccionada = moneda;
+            }
+            else
+            {
+                monedasSeleccionada = MonedasPago.CLP; // Valor por defecto
+            }
+
             App.RegistrosService.ActualizarVoucher(voucherSeleccionado.Id, clienteModificado, actividadesMostradas);
             this.MostrarAlerta("Operación Completada", "Voucher modificado y PDF actualizado con éxito.", NotificationType.Success);
-            await GeneradorPdf.GenerarReportePDF(voucherSeleccionado.Id, clienteModificado, actividadesMostradas, idiomaSeleccionado, this);
+            await GeneradorPdf.GenerarReportePDF("Voucher", voucherSeleccionado.Id, clienteModificado, actividadesMostradas, idiomaSeleccionado, this, monedasSeleccionada);
 
             CleanInputs();
 
             await CargarVouchers();
-            this.IrPagina(new PagCliente());
+            this.IrPagina(new PagPrincipal());
         }
         catch (Exception ex)
         {
@@ -199,6 +238,7 @@ public partial class PagModificar : UserControl
         textNinosModificar.Value = 0;
         textFechaInicioModificar.SelectedDate = null;
         textTelefonoModificar.Text = string.Empty;
+        textDescuentoModificar.Text = string.Empty;
 
         cmbVoucherCreados.SelectedItem = null;
         cmbVoucherCreados.Text = string.Empty;

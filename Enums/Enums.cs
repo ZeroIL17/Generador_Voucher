@@ -10,4 +10,21 @@ namespace GeneradorVoucher_MP.Enums
         Ingles,
         Portugues
     }
+
+    public enum MediosPago
+    {
+        Efectivo,
+        TarjetaCredito,
+        TarjetaDebito,
+        TransferenciaBancaria,
+        Cheque,
+        Otro
+    }
+
+    public enum MonedasPago
+    {
+        CLP,
+        R,
+        USD
+    }
 }

@@ -1,0 +1,392 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:GeneradorVoucher_MP.Views"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.Views.PagConfirmacion"
+             x:DataType="local:PagConfirmacion">
+    <Panel>
+        <Image Source="avares://GeneradorVoucher_MP/Assets/foto_mano.jpg"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" />
+
+        <Border Background="#60000000" />
+
+        <Border VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                Margin="30"
+                Background="#F0F4F8"
+                CornerRadius="10">
+
+            <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
+
+                <!-- Encabezado azul -->
+                <Border Grid.Row="0"
+                        Background="#1F4E78"
+                        CornerRadius="10,10,0,0"
+                        Padding="20,14">
+                    <Grid 
+                        ColumnDefinitions="Auto, *, Auto">
+                        <TextBlock Grid.Column="0" 
+                               Text="Confirmación voucher"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White" />   
+                        
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="Idioma Voucher" VerticalAlignment="Center" Padding="10,0"
+                                       FontSize="12"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"/>
+                            <ComboBox Name="cmbIdiomaVoucherConfirmacion"
+                                      Background="#CCFFFFFF"
+                                      ItemsSource="{Binding IdiomaOpciones}"
+                                      Width="120"
+                                      IsEditable="False">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>                    
+                        </StackPanel>
+                       
+                    </Grid>
+                    
+                </Border>
+
+                <!-- Selector de voucher -->
+                <Border Grid.Row="1"
+                        BorderThickness="0,0,0,1"
+                        BorderBrush="#DDDDDD"
+                        Padding="20,12">
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="Voucher"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center" />
+                        <AutoCompleteBox Name="cmbVoucherCreados"
+                                         PlaceholderText="Seleccionar ID"
+                                         Width="320"
+                                         MinimumPrefixLength="1"
+                                         FilterMode="ContainsOrdinal"
+                                         SelectionChanged="cmbVoucherCreados_SelectionChanged"
+                                         ItemsSource="{Binding VouchersDisponibles}"
+                                         ValueMemberBinding="{Binding DisplayText}" />
+
+                        <TextBlock Text="Adultos: "
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Name="textCantidadAdultos"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Niños: "
+                                   Margin="10,0,0,0"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Name="textCantidadNinos"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+                </Border>
+
+                 <!-- Formulario 2 columnas -->
+                <Grid Grid.Row="2"
+                      ColumnDefinitions="*, *"
+                      Margin="0,0,0,0">
+
+                    <!-- Izquierda: datos del pago -->
+                    <Border Grid.Column="0"
+                            BorderThickness="0,0,1,0"
+                            BorderBrush="#DDDDDD"
+                            Padding="20,16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Datos de pago"
+                                       FontSize="11"
+                                       Foreground="#999999"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Medio de pago" FontSize="11" Foreground="#666666" />
+                                <ComboBox Name="cmbMedioPagoConfirmacion" 
+                                          FontSize="11"  
+                                          HorizontalAlignment="Stretch"
+                                          IsEditable="True"
+                                          ItemsSource="{Binding MediosPagoDisponibles}"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Monto de abono" FontSize="11" Foreground="#666666" />
+                                <TextBox Name="textMontoAbonoConfirmacion" FontSize="11" Foreground="#666666" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Derecha: fechas del pago -->
+                    <Border Grid.Column="1" Padding="20,16">
+                        <StackPanel Spacing="10">
+                            <TextBlock
+                                       FontSize="11"
+                                       Foreground="#999999"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Fecha de abono" FontSize="11" Foreground="#666666" />
+                                <CalendarDatePicker Name="textFechaAbonoConfirmacion"
+                                                    IsDropDownOpen="False"
+                                                    IsTodayHighlighted="True"
+                                                    HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Fecha de pago saldo restante" FontSize="11" Foreground="#666666" />
+                                <CalendarDatePicker Name="textFechaPagoSaldoConfirmacion"
+                                                    IsDropDownOpen="False"
+                                                    IsTodayHighlighted="True"
+                                                    HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <!-- DataGrid de actividades -->
+                <Border Grid.Row="3"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="#DDDDDD"
+                        Padding="16,12">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <DataGrid Grid.Column="0"
+                                  Name="dgvActividadesMostradas"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  BorderThickness="1"
+                                  BorderBrush="#DDDDDD"
+                                  AutoGenerateColumns="False"
+                                  CanUserReorderColumns="False"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  FontSize="12"
+                                  ItemsSource="{Binding DatosActividades}"
+                                  >
+                            <DataGrid.Styles>
+                                <Style Selector="DataGridColumnHeader">
+                                    <Setter Property="FontSize" Value="11" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="Background" Value="#1F4E78" />
+                                    <Setter Property="Foreground" Value="White" />
+                                </Style>
+                            </DataGrid.Styles>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Fecha"
+                                                    Binding="{Binding FechaActividad, StringFormat=\{0:dd-MM-yyyy\}}"
+                                                    MaxWidth="250" />
+                                <DataGridTextColumn Header="Tour"
+                                                    Binding="{Binding TipoActividad}"
+                                                    MaxWidth="250" />
+                                <DataGridTextColumn Header="Incluye"
+                                                    Binding="{Binding IncluyeActividad}"
+                                                    MaxWidth="200" />
+                                <DataGridTextColumn Header="Entrada"
+                                                    Binding="{Binding PrecioEntrada, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Precio Adulto"
+                                                    Binding="{Binding PrecioTourAdulto, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                                <DataGridTextColumn Header="Precio Niño"
+                                                    Binding="{Binding PrecioTourNino, StringFormat=\{0:C0\}}"
+                                                    Width="Auto" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Panel de totales derecha -->
+                        <Border Grid.Column="1"
+                                Background="White"
+                                CornerRadius="10"
+                                Margin="14,0,0,0"
+                                Padding="16,14"
+                                Width="250"
+                                VerticalAlignment="Top">
+
+                            <StackPanel Spacing="0">
+
+                                <TextBlock Text="RESUMEN"
+                                            FontSize="10"
+                                            Foreground="#AAAAAA"
+                                            LetterSpacing="1.5"
+                                            Margin="0,0,0,12" />
+
+                                <!-- Fila: Tour adultos -->
+                                <Border BorderThickness="0,0,0,1"
+                                        BorderBrush="#EEEEEE"
+                                        Padding="0,8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <StackPanel Grid.Column="0" Spacing="2">
+                                            <TextBlock Text="Tour adultos"
+                                                        FontSize="11"
+                                                        Foreground="#888888" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textValorTotalAdultos"
+                                                    Text="$0"
+                                                    FontSize="13"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Fila: Tour niños -->
+                                <Border BorderThickness="0,0,0,1"
+                                        BorderBrush="#EEEEEE"
+                                        Padding="0,8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBlock Grid.Column="0"
+                                                    Text="Tour niños"
+                                                    FontSize="11"
+                                                    Foreground="#888888"
+                                                    VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textValorTotalNinos"
+                                                    Text="$0"
+                                                    FontSize="13"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Fila: Entradas -->
+                                <Border BorderThickness="0,0,0,1"
+                                        BorderBrush="#EEEEEE"
+                                        Padding="0,8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBlock Grid.Column="0"
+                                                    Text="Entradas"
+                                                    FontSize="11"
+                                                    Foreground="#888888"
+                                                    VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textValorTotalEntrada"
+                                                    Text="$0"
+                                                    FontSize="13"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Fila: SubTotal general (destacado) -->
+                                <Border Background="#EEF2F7"
+                                        CornerRadius="6"
+                                        Padding="10,10"
+                                        Margin="0,10,0,0">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <StackPanel Grid.Column="0" Spacing="1">
+                                            <TextBlock Text="Subtotal voucher"
+                                                        FontSize="11"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="#1F4E78" />
+                                            <TextBlock Text="Todos los servicios"
+                                                        FontSize="10"
+                                                        Foreground="#AAAAAA" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textValorSubtotalVoucher"
+                                                    Text="$0"
+                                                    FontSize="16"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Fila: Descuento -->
+                                <Border BorderThickness="0,0,0,1"
+                                        BorderBrush="#EEEEEE"
+                                        Padding="0,8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBlock Grid.Column="0"
+                                                    Text="Descuento"
+                                                    FontSize="11"
+                                                    Foreground="#888888"
+                                                    VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textDescuento"
+                                                    Text="$0"
+                                                    FontSize="13"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Fila: Total general (destacado) -->
+                                <Border Background="#EEF2F7"
+                                        CornerRadius="6"
+                                        Padding="10,10"
+                                        Margin="0,10,0,0">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <StackPanel Grid.Column="0" Spacing="1">
+                                            <TextBlock Text="Total voucher"
+                                                        FontSize="11"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="#1F4E78" />
+                                            <TextBlock Text="Todos los servicios"
+                                                        FontSize="10"
+                                                        Foreground="#AAAAAA" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1"
+                                                    Name="textValorTotalVoucher"
+                                                    Text="$0"
+                                                    FontSize="16"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#1F4E78"
+                                                    VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Botones -->
+                <Border Grid.Row="4"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="#DDDDDD"
+                        Padding="20,12">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Name="btnVolverPagPrincipal"
+                                Content="← Volver"
+                                Click="btnVolverPagPrincipal_Click"
+                                />
+                        <Button Grid.Column="3"
+                                Name="btnConfirmarVoucher"
+                                Content="Confirmar voucher →"
+                                Click="btnConfirmarVoucher_Click"
+                                Background="#1F4E78"
+                                Foreground="White"
+                                 />
+                        <ComboBox Grid.Column="4"
+                                  Name="cmbMonedaSelect"
+                                  SelectedIndex="0"
+                                  Width="85"
+                                  ItemsSource="{Binding MonedasPagoDisponibles}">
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Panel>
+</UserControl>

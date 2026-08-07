@@ -147,6 +147,11 @@
                                 <TextBlock Text="Teléfono de contacto" FontSize="11" Foreground="#666666" />
                                 <TextBox Name="textTelefonoModificar" HorizontalAlignment="Stretch" />
                             </StackPanel>
+
+                            <StackPanel>
+                                <TextBlock Text="Descuento (%)" FontSize="11" Foreground="#666666" />
+                                <TextBox Name="textDescuentoModificar" HorizontalAlignment="Stretch" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -236,7 +241,7 @@
                         BorderThickness="0,1,0,0"
                         BorderBrush="#DDDDDD"
                         Padding="20,12">
-                    <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="10">
                         <Button Grid.Column="0"
                                 Name="btnVolverPagCliente"
                                 Content="← Volver"
@@ -247,6 +252,13 @@
                                 Background="#1F4E78"
                                 Foreground="White"
                                 Click="btnActualizarVoucher_Click" />
+                        <ComboBox Grid.Column="5"
+                                  Name="cmbMonedaSelect"
+                                  SelectedIndex="0"
+                                  Width="85"
+                                  ItemsSource="{Binding MonedasPagoDisponibles}">
+                            
+                        </ComboBox>
                     </Grid>
                 </Border>
 

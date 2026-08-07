@@ -71,7 +71,7 @@
                             Padding="20">
 
                         <Grid ColumnDefinitions="Auto, *"
-                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                               RowSpacing="8"
                               ColumnSpacing="10">
 
@@ -121,6 +121,56 @@
                             <TextBox Grid.Column="1" Grid.Row="7"
                                      Name="textTourNinoActividad"
                                      HorizontalAlignment="Stretch" />
+
+                            <TextBlock Grid.Column="0" Grid.Row="8" Text="Descuento tour" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
+
+                            <Border Grid.Column="1" Grid.Row="8"
+                                BorderThickness="1"
+                                BorderBrush="#CCCCCC"
+                                CornerRadius="4"
+                                Background="White"
+                                HorizontalAlignment="Stretch"
+                                Padding="6,0">
+
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+
+                                <CheckBox Grid.Column="0"
+                                          Name="chkDescuentoActividad"
+                                          IsChecked="False"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,4,0" />
+
+                                <Border Grid.Column="0"
+                                        Width="1"
+                                        Background="#EEEEEE"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,4,0,4" />
+
+                                <TextBox Grid.Column="1"
+                                         Name="textDescuentoActividad"
+                                         HorizontalAlignment="Stretch"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         Padding="6,0"
+                                         VerticalContentAlignment="Center" />
+
+                                <Border Grid.Column="2"
+                                        Width="1"
+                                        Background="#EEEEEE"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,4,0,4" />
+
+                                <TextBlock Grid.Column="2"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent"
+                                          Padding="6,0"
+                                          VerticalAlignment="Center"
+                                          Text="%">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
                         </Grid>
                     </Border>
 
@@ -183,7 +233,7 @@
                         BorderThickness="0,1,0,0"
                         BorderBrush="#DDDDDD"
                         Padding="20,12">
-                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto" ColumnSpacing="10">
 
                         <Button Grid.Column="0"
                                 Name="btnVolverPagCliente"
@@ -203,6 +253,13 @@
                                 Background="#1F4E78"
                                 Foreground="White"
                                 Click="btnCrearVoucher_Click" />
+                        <ComboBox Grid.Column="5"
+                                  Name="cmbMonedaSelect"
+                                  SelectedIndex="0"
+                                  Width="85"
+                                  ItemsSource="{Binding MonedasPagoDisponibles}">
+                            
+                        </ComboBox>
                     </Grid>
                 </Border>
 

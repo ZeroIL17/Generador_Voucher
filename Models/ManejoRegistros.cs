@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Transactions;
 
 namespace GeneradorVoucher_MP.Models
 {
@@ -139,6 +140,102 @@ namespace GeneradorVoucher_MP.Models
             return listaResultado;
         }
 
+        public void GuardarConfirmacion(DatosConfirmacion datosConfirmacion, int idSeleccionado)
+        {
+            using var db = ObtenerConexion();
+            db.Open();
+
+            using var transaccion = db.BeginTransaction();
+
+            try
+            {
+                // 1. Buscar los datos del cliente por su ID único
+                string sqlCliente = "SELECT id, nombre AS NombreCliente, cantidad_adultos AS CantidadAdultosCliente, cantidad_ninos AS CantidadNinosCliente, fecha_viaje::TIMESTAMP AS FechaInicioCliente, telefono AS TelefonoCliente FROM clientes WHERE id = @Id;";
+                var cliente = db.QueryFirstOrDefault<DatosCliente>(sqlCliente, new { Id = idSeleccionado });
+
+                if (cliente == null)
+                {
+                    throw new Exception("No se encontraron registros para el ID seleccionado.");
+                }
+
+                // Aseguramos que el ID interno quede asignado por si tu modelo lo requiere
+                //cliente.id = idSeleccionado;
+
+                // 2. Buscar todas las actividades amarradas a ese cliente_id
+                string sqlActividades = @"
+                    SELECT fecha_actividad::TIMESTAMP AS fechaActividad,
+                           tipo_actividad AS tipoActividad, 
+                           pickup_actividad AS pickupActividad, 
+                           regreso_actividad AS regresoActividad, 
+                           servicio_actividad AS incluyeActividad, 
+                           precio_entrada AS precioEntrada, 
+                           precio_tour_adulto AS precioTourAdulto, 
+                           precio_tour_nino AS precioTourNino, 
+                           subtotal AS SubtotalActividad,
+                           descuento AS DescuentoActividad,
+                           total AS TotalActividad
+                    FROM actividades 
+                    WHERE cliente_id = @ClienteId;";
+
+                var actividades = db.Query<DatosActividad>(sqlActividades, new { ClienteId = idSeleccionado }).ToList();
+
+                // Calcular totales para la confirmación
+                int adultos = cliente.CantidadAdultosCliente;
+                int ninos = cliente.CantidadNinosCliente;
+                int pasajeros = Math.Max(1, adultos + ninos);
+
+                double totalEntrada = (actividades ?? Enumerable.Empty<DatosActividad>()).Sum(a => a.PrecioEntrada * pasajeros);
+                double totalTour = (actividades ?? Enumerable.Empty<DatosActividad>()).Sum(a => adultos * a.PrecioTourAdulto + ninos * a.PrecioTourNino);
+                double subtotal = Math.Round(totalEntrada + totalTour, 2);
+
+                // Descuento: tomamos el valor del primer elemento si existe (misma lógica que en otros puntos)
+                double descuento = actividades?.FirstOrDefault()?.DescuentoActividad ?? 0.0;
+                double montoDescuento = Math.Round(subtotal * descuento / 100.0, 2);
+                double totalFinal = Math.Round(subtotal - montoDescuento, 2);
+
+                // Pagos proporcionados por el DTO DatosConfirmacion
+                double abonoConfirmacion = Math.Round(datosConfirmacion.AbonoConfirmacion, 2);
+                double saldoPendiente = Math.Round(datosConfirmacion.SaldoPendiente, 2);
+
+                // 3) Insertar en la tabla confirmaciones
+                string sqlInsertConfirmacion = @"
+                INSERT INTO confirmaciones
+                    (cliente_id, cantidad_adultos, cantidad_ninos, total_entrada, total_tour, subtotal, descuento, total_final,
+                     abono_confirmacion, saldo_pendiente, fecha_creacion, fecha_pago, fecha_pago_pendiente, usuario_creacion)
+                VALUES
+                    (@ClienteId, @CantidadAdultos, @CantidadNinos, @TotalEntrada, @TotalTour, @Subtotal, @Descuento, @TotalFinal,
+                     @AbonoConfirmacion, @SaldoPendiente, @FechaCreacion, @FechaPago, @FechaPagoPendiente, @UsuarioCreacion)
+                RETURNING id;";
+
+                var parametrosConfirmacion = new
+                {
+                    ClienteId = idSeleccionado,
+                    CantidadAdultos = adultos,
+                    CantidadNinos = ninos,
+                    TotalEntrada = totalEntrada,
+                    TotalTour = totalTour,
+                    Subtotal = subtotal,
+                    Descuento = montoDescuento,
+                    TotalFinal = totalFinal,
+                    AbonoConfirmacion = abonoConfirmacion,
+                    SaldoPendiente = saldoPendiente,
+                    FechaCreacion = datosConfirmacion.FechaCreacionAbono == default ? DateTime.Now : datosConfirmacion.FechaCreacionAbono,
+                    FechaPago = datosConfirmacion.FechaPagoAbono == default ? (DateTime?)null : datosConfirmacion.FechaPagoAbono.Date,
+                    FechaPagoPendiente = datosConfirmacion.FechaPagoPendiente == default ? (DateTime?)null : datosConfirmacion.FechaPagoPendiente,
+                    UsuarioCreacion = SesionSistema.UsuarioActual
+                };
+
+                int nuevoIdConfirmacion = db.QuerySingle<int>(sqlInsertConfirmacion, parametrosConfirmacion, transaccion);
+
+                transaccion.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaccion.Rollback(); // Si hubo un error (ej: corte de internet), deshace todo
+                Debug.WriteLine(ex);
+                throw;
+            }
+        }
         public int GuardarViajeDB(DatosCliente datosCliente, IEnumerable<DatosActividad> actividades, int idActividad = 0)
         {
             using var db = ObtenerConexion();
@@ -164,13 +261,15 @@ namespace GeneradorVoucher_MP.Models
 
                 // 2. Insertar las actividades del itinerario amarradas a ese nuevo ID
                 string sqlActividad = @"
-                    INSERT INTO actividades (cliente_id, fecha_actividad, tipo_actividad, pickup_actividad, regreso_actividad, servicio_actividad, precio_entrada, precio_tour_adulto, precio_tour_nino, subtotal)
-                    VALUES (@ClienteId, @FechaActividad, @TipoActividad, @PickupActividad, @RegresoActividad, @ServicioActividad, @PrecioEntrada, @PrecioTourAdulto, @PrecioTourNino, @Subtotal);";
+                    INSERT INTO actividades (cliente_id, fecha_actividad, tipo_actividad, pickup_actividad, regreso_actividad, servicio_actividad, precio_entrada, precio_tour_adulto, precio_tour_nino, subtotal, descuento, total)
+                    VALUES (@ClienteId, @FechaActividad, @TipoActividad, @PickupActividad, @RegresoActividad, @ServicioActividad, @PrecioEntrada, @PrecioTourAdulto, @PrecioTourNino, @SubtotalActividad, @DescuentoActividad, @TotalActividad);";
 
                 foreach (var act in actividades)
                 {
                     double subtotalCalculado = (act.PrecioEntrada + act.PrecioTourAdulto) * datosCliente.CantidadAdultosCliente +
                                               (act.PrecioEntrada + act.PrecioTourNino) * datosCliente.CantidadNinosCliente;
+
+                    double totalCalculado = subtotalCalculado - (subtotalCalculado * act.DescuentoActividad / 100);
 
                     // Usamos un objeto anónimo para inyectar los datos en el SQL de Dapper
                     db.Execute(sqlActividad, new
@@ -184,7 +283,9 @@ namespace GeneradorVoucher_MP.Models
                         PrecioEntrada = act.PrecioEntrada,
                         PrecioTourAdulto = act.PrecioTourAdulto,
                         PrecioTourNino = act.PrecioTourNino,
-                        Subtotal = subtotalCalculado
+                        SubtotalActividad = subtotalCalculado,
+                        DescuentoActividad = act.DescuentoActividad,
+                        TotalActividad = totalCalculado
                     }, transaccion);
                 }
 
@@ -240,7 +341,10 @@ namespace GeneradorVoucher_MP.Models
                        servicio_actividad AS incluyeActividad, 
                        precio_entrada AS precioEntrada, 
                        precio_tour_adulto AS precioTourAdulto, 
-                       precio_tour_nino AS precioTourNino 
+                       precio_tour_nino AS precioTourNino, 
+                       subtotal AS SubtotalActividad,
+                       descuento AS DescuentoActividad,
+                       total AS TotalActividad
                 FROM actividades 
                 WHERE cliente_id = @ClienteId;";
 
@@ -286,8 +390,8 @@ namespace GeneradorVoucher_MP.Models
 
                 // 3. Insertar el nuevo listado de actividades corregido
                 string sqlInsertActividad = @"
-                    INSERT INTO actividades (cliente_id, fecha_actividad, tipo_actividad, pickup_actividad, regreso_actividad, servicio_actividad, precio_entrada, precio_tour_adulto, precio_tour_nino, subtotal)
-                    VALUES (@ClienteId, @FechaActividad, @TipoActividad, @PickupActividad, @RegresoActividad, @ServicioActividad, @PrecioEntrada, @PrecioTourAdulto, @PrecioTourNino, @Subtotal);";
+                    INSERT INTO actividades (cliente_id, fecha_actividad, tipo_actividad, pickup_actividad, regreso_actividad, servicio_actividad, precio_entrada, precio_tour_adulto, precio_tour_nino, subtotal, descuento, total)
+                    VALUES (@ClienteId, @FechaActividad, @TipoActividad, @PickupActividad, @RegresoActividad, @ServicioActividad, @PrecioEntrada, @PrecioTourAdulto, @PrecioTourNino, @SubtotalActividad, @DescuentoActividad, @TotalActividad);";
 
                 foreach (var act in actividadesModificadas)
                 {
@@ -297,6 +401,8 @@ namespace GeneradorVoucher_MP.Models
                     // Recalculamos el subtotal dinámico de la fila basado en la nueva cantidad de pasajeros
                     double subtotalCalculado = (act.PrecioEntrada + act.PrecioTourAdulto) * clienteModificado.CantidadAdultosCliente +
                                               (act.PrecioEntrada + act.PrecioTourNino) * clienteModificado.CantidadNinosCliente;
+
+                    double totalCalculado = subtotalCalculado - (subtotalCalculado * act.DescuentoActividad / 100);
 
                     db.Execute(sqlInsertActividad, new
                     {
@@ -309,7 +415,9 @@ namespace GeneradorVoucher_MP.Models
                         PrecioEntrada = act.PrecioEntrada,
                         PrecioTourAdulto = act.PrecioTourAdulto,
                         PrecioTourNino = act.PrecioTourNino,
-                        Subtotal = subtotalCalculado
+                        SubtotalActividad = subtotalCalculado,
+                        DescuentoActividad = act.DescuentoActividad,
+                        TotalActividad = totalCalculado
                     }, transaction: transaccion);
                 }
 
@@ -362,7 +470,7 @@ namespace GeneradorVoucher_MP.Models
                     "ID", "Fecha Creación", "Nombre Cliente", "Cantidad Adultos", "Cantidad Niños",
                     "Fecha Inicio", "Telefono", "Fecha Actividad", "Tipo Actividad", "PickUp Actividad",
                     "Regreso Actividad", "Servicio Actividad", "Precio Entrada", "Precio Tour Adulto",
-                    "Precio Tour Niño", "Subtotal", "Usuario"
+                    "Precio Tour Niño", "Subtotal", "Descuento", "Total", "Usuario"
                 };
 
                 for (int i = 0; i < encabezados.Length; i++)
@@ -391,6 +499,9 @@ namespace GeneradorVoucher_MP.Models
                 double subtotal = (actividad.PrecioEntrada + actividad.PrecioTourAdulto) * datosCliente.CantidadAdultosCliente
                     + (actividad.PrecioEntrada + actividad.PrecioTourNino) * datosCliente.CantidadNinosCliente;
 
+                // Cálculo del total con descuento
+                double total = subtotal - (subtotal * actividad.DescuentoActividad / 100);
+
                 worksheet.Cell(nuevaFilaId, 1).Value = idActividad;
                 worksheet.Cell(nuevaFilaId, 2).Value = fechaCreacion;
                 worksheet.Cell(nuevaFilaId, 3).Value = datosCliente.NombreCliente;
@@ -410,7 +521,9 @@ namespace GeneradorVoucher_MP.Models
                 worksheet.Cell(nuevaFilaId, 14).Value = actividad.PrecioTourAdulto;
                 worksheet.Cell(nuevaFilaId, 15).Value = actividad.PrecioTourNino;
                 worksheet.Cell(nuevaFilaId, 16).Value = subtotal;
-                worksheet.Cell(nuevaFilaId, 17).Value = SesionSistema.UsuarioActual; // Responsable de la sesión
+                worksheet.Cell(nuevaFilaId, 17).Value = actividad.DescuentoActividad;
+                worksheet.Cell(nuevaFilaId, 18).Value = actividad.TotalActividad;
+                worksheet.Cell(nuevaFilaId, 19).Value = SesionSistema.UsuarioActual; // Responsable de la sesión
 
                 nuevaFilaId++;
             }
@@ -450,7 +563,10 @@ namespace GeneradorVoucher_MP.Models
                     a.servicio_actividad,
                     a.precio_entrada,
                     a.precio_tour_adulto,
-                    a.precio_tour_nino
+                    a.precio_tour_nino,
+                    a.subtotal,
+                    a.descuento,
+                    a.total
                 FROM clientes v
                 LEFT JOIN actividades a ON v.id = a.cliente_id
                 ORDER BY v.id DESC, a.fecha_actividad ASC;";
@@ -464,7 +580,7 @@ namespace GeneradorVoucher_MP.Models
                     "Voucher_ID", "Fecha Creación", "Cliente", "Cantidad_Adultos", "Cantidad_Niños",
                     "Fecha_Inicio_Viaje", "Teléfono", "Usuario_responsable" ,"Fecha Actividad", "Actividad"
                     ,"Pick-up", "Retorno","Incluye", "Precio Entrada", "Precio Adulto",
-                    "Precio Niño"
+                    "Precio Niño", "Subtotal", "Descuento", "Total"
                 };
 
                 for (int i = 0; i < encabezados.Length; i++)
@@ -508,12 +624,18 @@ namespace GeneradorVoucher_MP.Models
                             worksheet.Cell(filaActual, 14).Value = reader.IsDBNull(13) ? 0.0 : reader.GetDouble(13); //entrada
                             worksheet.Cell(filaActual, 15).Value = reader.IsDBNull(14) ? 0.0 : reader.GetDouble(14); //precio tour adulto
                             worksheet.Cell(filaActual, 16).Value = reader.IsDBNull(15) ? 0.0 : reader.GetDouble(15); // precio tour niño
+                            worksheet.Cell(filaActual, 17).Value = reader.IsDBNull(16) ? 0.0 : reader.GetDouble(16); // subtotal
+                            worksheet.Cell(filaActual, 18).Value = reader.IsDBNull(17) ? 0.0 : reader.GetDouble(17); // descuento
+                            worksheet.Cell(filaActual, 19).Value = reader.IsDBNull(18) ? 0.0 : reader.GetDouble(18); // total
 
 
                             // Aplicar formato de moneda a las columnas de dinero (Columnas 12, 13 y 14)
                             worksheet.Cell(filaActual, 14).Style.NumberFormat.Format = "$#,##0.00";
                             worksheet.Cell(filaActual, 15).Style.NumberFormat.Format = "$#,##0.00";
                             worksheet.Cell(filaActual, 16).Style.NumberFormat.Format = "$#,##0.00";
+                            worksheet.Cell(filaActual, 17).Style.NumberFormat.Format = "$#,##0.00";
+                            worksheet.Cell(filaActual, 18).Style.NumberFormat.Format = "$#,##0.00";
+                            worksheet.Cell(filaActual, 19).Style.NumberFormat.Format = "$#,##0.00";
 
                             filaActual++;
                         }

@@ -33,7 +33,12 @@ public partial class PagActividad : UserControl
         new IdiomaOpcion(IdiomaVoucher.Ingles, "Inglés"),
         new IdiomaOpcion(IdiomaVoucher.Portugues, "Portugués")
     };
-
+    public ObservableCollection<MonedasPago> MonedasPagoDisponibles { get; } = new ObservableCollection<MonedasPago>
+    {
+        MonedasPago.CLP,
+        MonedasPago.R,
+        MonedasPago.USD
+    };
     public ObservableCollection<DatosActividad> DatosActividades => datosActividades;
     public List<ActividadPreestablecida> CatalogoOpciones => catalogoOpciones;
 
@@ -168,6 +173,27 @@ public partial class PagActividad : UserControl
             return;
         }
 
+        if (chkDescuentoActividad.IsChecked == true)
+        {
+            if (!double.TryParse(textDescuentoActividad.Text, out double descuento) || descuento < 0 || descuento > 100)
+            {
+                this.MostrarAlerta("Descuento Inválido", "El valor del descuento debe ser un número positivo entre 0 y 100.", NotificationType.Warning);
+                return;
+            }
+
+            foreach (var actividad in datosActividades)
+            {
+                actividad.DescuentoActividad = (float)descuento;
+            }
+        }
+        else
+        {
+            foreach (var actividad in datosActividades)
+            {
+                actividad.DescuentoActividad = 0;
+            }
+        }
+
         try
         {
 
@@ -181,9 +207,19 @@ public partial class PagActividad : UserControl
                 idiomaSeleccionado = IdiomaVoucher.Espanol; // Valor por defecto
             }
 
+            MonedasPago monedasSeleccionada;
+            if (cmbMonedaSelect.SelectedItem is MonedasPago moneda)
+            {
+                monedasSeleccionada = moneda;
+            }
+            else
+            {
+                monedasSeleccionada = MonedasPago.CLP; // Valor por defecto
+            }
+
             int idActividad = App.RegistrosService.GuardarViajeDB(clienteActual, datosActividades);
             this.MostrarAlerta("Éxito", $"¡Todo guardado con éxito! Se registró con el ID: {idActividad}", NotificationType.Success);
-            await GeneradorPdf.GenerarReportePDF(idActividad, clienteActual, datosActividades, idiomaSeleccionado, this);
+            await GeneradorPdf.GenerarReportePDF("Voucher",idActividad, clienteActual, datosActividades, idiomaSeleccionado, this, monedasSeleccionada);
 
             try
             {

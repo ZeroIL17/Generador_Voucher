@@ -12,6 +12,7 @@ namespace GeneradorVoucher_MP.Localization
             [IdiomaVoucher.Espanol] = new Dictionary<string, string>
             {
                 ["TituloVoucher"] = "Cotización de servicios",
+                ["TituloConfirmacion"] = "Voucher de Confirmación",
                 ["TituloCliente"] = "INFORMACIÓN DEL CLIENTE",
                 ["Responsable"] = "Responsable",
                 ["Cliente"] = "Cliente",
@@ -31,18 +32,42 @@ namespace GeneradorVoucher_MP.Localization
                 ["PrecioTourNino"] = "Precio niños",
                 ["ValorEntradas"] = "Valor Entradas",
                 ["ValorTour"] = "Valor Tour",
-                ["TotalGeneral"] = "TOTAL GENERAL",
+                ["TotalTour"] = "Precio de tour",
+                ["TotalEntradas"] = "Precio de entradas",
+                ["SubTotalGeneral"] = "TOTAL",
+                ["Descuento"] = "Descuento en tour",
+                ["TotalGeneral"] = "TOTAL CON DESCUENTO",
+                ["PorPersona"] = "Por persona",
+                ["Grupo"] = "Grupo",
                 ["InformacionReservaTitulo"] = "Información importante sobre su reserva",
-                ["InforamcionReservaPago"] = "Pago del saldo: ",
+                ["InformacionReservaPago"] = "Pago del saldo: ",
                 ["InformacionReservaPagoContenido"] = "Nuestro servicio opera de forma online y semipresencial. Por favor, coordine con nosotros su hora de atención para el día de su llegada a San Pedro de Atacama para liquidar el saldo pendiente.",
-                ["InformacionReservaModificion"] = "Modificaciones del itinerario",
+                ["InformacionReservaModificacion"] = "Modificaciones del itinerario",
                 ["InformacionReservaModificacionContenido"] = "Modificaciones del itinerario: El programa puede sufrir cambios debido a factores climáticos, disponibilidad de los parques o fuerza mayor. El itinerario definitivo se le enviará 3 días antes del inicio de sus excursiones.",
-                ["Agradecimiento"] = "Gracias por preferirnos, equipo de Caminandes"
+                ["Agradecimiento"] = "Gracias por preferirnos, equipo de Caminandes",
+
+                //Medio de pago
+                ["MedioPagoEfectivo"] = "Efectivo",
+                ["MedioPagoTarjetaCredito"] = "Tarjeta de crédito",
+                ["MedioPagoTarjetaDebito"] = "Tarjeta de débito",
+                ["MedioPagoTransferenciaBancaria"] = "Transferencia bancaria",
+                ["MedioPagoCheque"] = "Cheque",
+                ["MedioPagoOtro"] = "Otro",
+
+                ["ValorTotal"] = "Valor tour:",
+                ["MontoPagado"] = "Monto pagado:",
+                ["SaldoPendiente"] = "Saldo pendiente:",
+                ["FechaPago"] = "Fecha de pago:",
+                ["MedioPago"] = "Medio de pago:",
+                ["MedioPagoPendiente"] = "Medio de pago de saldo pendiente:",
+                ["FechaPagoPendiente"] = "Fecha de pago saldo pendiente:",
+                ["ValorEntradasConfirmacion"] = "Valor total de entradas (Deben ser pagadas en efectivo pesos chilenos): CLP $"
             },
 
             [IdiomaVoucher.Ingles] = new Dictionary<string, string>
             {
                 ["TituloVoucher"] = "Service Quotation",
+                ["TituloConfirmacion"] = "Confirmation Voucher",
                 ["TituloCliente"] = "CUSTOMER INFORMATION",
                 ["Responsable"] = "Responsible",
                 ["Cliente"] = "Client",
@@ -62,18 +87,42 @@ namespace GeneradorVoucher_MP.Localization
                 ["PrecioTourNino"] = "Children Price",
                 ["ValorEntradas"] = "Total Entrance Fees",
                 ["ValorTour"] = "Total Tour Price",
-                ["TotalGeneral"] = "TOTAL AMOUNT",
+                ["TotalTour"] = "Total Tour",
+                ["TotalEntradas"] = "Total Entrance Fees",
+                ["SubTotalGeneral"] = "TOTAL",
+                ["Descuento"] = "Discount",
+                ["TotalGeneral"] = "TOTAL WITH DISCOUNT",
+                ["PorPersona"] = "Per Person",
+                ["Grupo"] = "Group",
                 ["InformacionReservaTitulo"] = "Important information about your reservation",
-                ["InforamcionReservaPago"] = "Balance payment: ",
+                ["InformacionReservaPago"] = "Balance payment: ",
                 ["InformacionReservaPagoContenido"] = "Our service operates both online and semi‑in‑person. Please coordinate with us to schedule your appointment on the day of your arrival in San Pedro de Atacama in order to settle the outstanding balance.",
-                ["InformacionReservaModificion"] = "Itinerary modifications",
+                ["InformacionReservaModificacion"] = "Itinerary modifications",
                 ["InformacionReservaModificacionContenido"] = "The program may undergo changes due to weather conditions, park availability, or force majeure. The final itinerary will be sent to you 3 days before the start of your excursions.",
-                ["Agradecimiento"] = "We appreciate your preference, CaminAndes team"
+                ["Agradecimiento"] = "We appreciate your preference, CaminAndes team",
+
+                //Medio de pago
+                ["MedioPagoEfectivo"] = "Cash",
+                ["MedioPagoTarjetaCredito"] = "Credit Card",
+                ["MedioPagoTarjetaDebito"] = "Debit Card",
+                ["MedioPagoTransferenciaBancaria"] = "Bank Transfer",
+                ["MedioPagoCheque"] = "Check",
+                ["MedioPagoOtro"] = "Other",
+
+                ["ValorTotal"] = "Total Value:",
+                ["MontoPagado"] = "Amount Paid:",
+                ["SaldoPendiente"] = "Pending Balance:",
+                ["FechaPago"] = "Payment Date:",
+                ["MedioPago"] = "Payment Method:",
+                ["MedioPagoPendiente"] = "Payment Method for Pending Balance:",
+                ["FechaPagoPendiente"] = "Payment Date for Pending Balance:",
+                ["ValorEntradasConfirmacion"] = "Total value of tickets (Must be paid in cash in Chilean pesos): CLP $"
             },
 
             [IdiomaVoucher.Portugues] = new Dictionary<string, string>
             {
                 ["TituloVoucher"] = "Cotação de serviços",
+                ["TituloConfirmacion"] = "Voucher de Confirmação",
                 ["TituloCliente"] = "INFORMAÇÃO DO CLIENTE",
                 ["Responsable"] = "Responsável",
                 ["Cliente"] = "Cliente",
@@ -93,13 +142,37 @@ namespace GeneradorVoucher_MP.Localization
                 ["PrecioTourNino"] = "Preço crianças",
                 ["ValorEntradas"] = "Valor das Entradas",
                 ["ValorTour"] = "Valor do Tour",
+                ["TotalTour"] = "Total do Tour",
+                ["TotalEntradas"] = "Total das Entradas",
+                ["SubTotalGeneral"] = "TOTAL",
+                ["Descuento"] = "Desconto no tour",
+                ["TotalGeneral"] = "Total con desconto",
+                ["PorPersona"] = "Por pessoa",
+                ["Grupo"] = "Grupo",
                 ["TotalGeneral"] = "TOTAL GERAL",
                 ["InformacionReservaTitulo"] = "Informação importante sobre a sua reserva",
-                ["InforamcionReservaPago"] = "Pagamento do saldo: ",
+                ["InformacionReservaPago"] = "Pagamento do saldo: ",
                 ["InformacionReservaPagoContenido"] = "Nosso serviço funciona de forma online e semipresencial. Por favor, coordene conosco o seu horário de atendimento para o dia da sua chegada a San Pedro de Atacama, a fim de liquidar o saldo pendente.",
-                ["InformacionReservaModificion"] = "Modificações do itinerário",
+                ["InformacionReservaModificacion"] = "Modificações do itinerário",
                 ["InformacionReservaModificacionContenido"] = "O programa pode sofrer alterações devido a fatores climáticos, disponibilidade dos parques ou força maior. O itinerário definitivo será enviado a você 3 dias antes do início das suas excursões.",
-                ["Agradecimiento"] = "Obrigado por nos escolher, equipe CaminAndes"
+                ["Agradecimiento"] = "Obrigado por nos escolher, equipe CaminAndes",
+
+                //Medio de pago
+                ["MedioPagoEfectivo"] = "Dinheiro",
+                ["MedioPagoTarjetaCredito"] = "Cartão de crédito",
+                ["MedioPagoTarjetaDebito"] = "Cartão de débito",
+                ["MedioPagoTransferenciaBancaria"] = "Transferência bancária",
+                ["MedioPagoCheque"] = "Cheque",
+                ["MedioPagoOtro"] = "Outro",
+
+                ["ValorTotal"] = "Valor do tour:",
+                ["MontoPagado"] = "Valor pago:",
+                ["SaldoPendiente"] = "Saldo pendente:",
+                ["FechaPago"] = "Data de pagamento:",
+                ["MedioPago"] = "Forma de pagamento:",
+                ["MedioPagoPendiente"] = "Forma de pagamento do saldo pendente:",
+                ["FechaPagoPendiente"] = "Data de pagamento do saldo pendente:",
+                ["ValorEntradasConfirmacion"] = "Valor total dos ingressos (Devem ser pagos em dinheiro em pesos chilenos): CLP $"
             }
         };
 

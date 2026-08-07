@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using GeneradorVoucher_MP.Models;
 using GeneradorVoucher_MP.Views;
@@ -25,6 +26,7 @@ public partial class PagPrincipal : UserControl
 
     private void btnPaginaConfirmacion_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        this.IrPagina(new PagConfirmacion());
     }
 
     private void btnModificarVoucher_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -64,6 +66,17 @@ public partial class PagPrincipal : UserControl
         finally
         {
             btnExportarDatos.IsEnabled = true;
+        }
+    }
+    private void btnAbrirCarpeta_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        try
+        {
+            App.RegistrosService.AbrirRegistros();
+        }
+        catch (Exception ex)
+        {
+            this.MostrarAlerta("Error", $"No se pudo abrir el archivo: {ex.Message}", NotificationType.Error);
         }
     }
 }

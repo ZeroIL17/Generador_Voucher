@@ -55,18 +55,6 @@ public partial class PagCliente : UserControl
         }
     }
 
-    private void btnVerCarpeta_Click(object? sender, RoutedEventArgs e)
-    {
-        try
-        {
-            App.RegistrosService.AbrirRegistros();
-        }
-        catch (Exception ex)
-        {
-            this.MostrarAlerta("Error", $"No se pudo abrir el archivo: {ex.Message}", NotificationType.Error);
-        }
-    }
-
     private void btnModificarPag_Click(object? sender, RoutedEventArgs e)
     {
         this.IrPagina(new PagModificar());
