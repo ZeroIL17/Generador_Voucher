@@ -126,12 +126,13 @@ namespace GeneradorVoucher_MP.Views
                 totalGeneral += totalAdultos + totalNinos + totalEntradas;
             }
 
-            double descuento = actividadesMostradas[0].DescuentoActividad * (totalGeneral / 100);
+            double descuento = (totalNinos + totalAdultos) * actividadesMostradas[0].DescuentoActividad / 100;
+            double totalTour = totalAdultos + totalNinos - descuento;
 
             textValorTotalAdultos.Text = totalAdultos.ToString("N0");
             textValorTotalNinos.Text = totalNinos.ToString("N0");
             textValorTotalEntrada.Text = totalEntradas.ToString("N0");
-            textValorSubtotalVoucher.Text = totalGeneral.ToString("N0");
+            textValorTotalTour.Text = totalTour.ToString("N0");
             textDescuento.Text = descuento.ToString("N0");
             textValorTotalVoucher.Text = (totalGeneral - descuento).ToString("N0");
         }
@@ -163,8 +164,14 @@ namespace GeneradorVoucher_MP.Views
                 return;
             }
 
+            if (montoAbono > double.Parse(textValorTotalTour.Text))
+            {
+                this.MostrarAlerta("Error", "El monto del abono no puede ser mayor al valor total del voucher.", NotificationType.Error);
+                return;
+            }
+
             else if (textFechaPagoSaldoConfirmacion.SelectedDate is null &&
-                montoAbono != double.Parse(textValorTotalVoucher.Text))
+                montoAbono != double.Parse(textValorTotalTour.Text))
             {
                 this.MostrarAlerta("Error", "Debe ingresar la fecha de pago del saldo.", NotificationType.Error);
                 return;
@@ -196,7 +203,7 @@ namespace GeneradorVoucher_MP.Views
 
                 var (datosClientes, datosActividades) = App.RegistrosService.ObtenerDetalleVoucher(idSeleccionado);
 
-                double saldoPendiente = double.Parse(textValorTotalVoucher.Text) - montoAbono;
+                double saldoPendiente = double.Parse(textValorTotalTour.Text) - montoAbono;
 
                 DatosConfirmacion datosConfirmacion = new DatosConfirmacion
                 {
@@ -204,7 +211,9 @@ namespace GeneradorVoucher_MP.Views
                     AbonoConfirmacion = montoAbono,
                     SaldoPendiente = saldoPendiente,
                     FechaCreacionAbono = DateTime.Today,
-                    FechaPagoAbono = (DateTime)textFechaPagoSaldoConfirmacion.SelectedDate,
+                    // Usar la fecha del abono (control validado) en lugar de forzar el SelectedDate del saldo
+                    FechaPagoAbono = textFechaAbonoConfirmacion.SelectedDate!.Value,
+                    // Mantener nulo posible para la fecha del saldo pendiente
                     FechaPagoPendiente = textFechaPagoSaldoConfirmacion?.SelectedDate
                 };
 
@@ -232,7 +241,7 @@ namespace GeneradorVoucher_MP.Views
             textValorTotalAdultos.Text = string.Empty;
             textValorTotalNinos.Text = string.Empty;
             textValorTotalEntrada.Text =string.Empty;
-            textValorSubtotalVoucher.Text = string.Empty;
+            textValorTotalTour.Text = string.Empty;
             textDescuento.Text = string.Empty;
             textValorTotalVoucher.Text =string.Empty;
         }

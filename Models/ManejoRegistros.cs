@@ -190,7 +190,7 @@ namespace GeneradorVoucher_MP.Models
 
                 // Descuento: tomamos el valor del primer elemento si existe (misma lógica que en otros puntos)
                 double descuento = actividades?.FirstOrDefault()?.DescuentoActividad ?? 0.0;
-                double montoDescuento = Math.Round(subtotal * descuento / 100.0, 2);
+                double montoDescuento = Math.Round(totalTour * descuento / 100.0, 2);
                 double totalFinal = Math.Round(subtotal - montoDescuento, 2);
 
                 // Pagos proporcionados por el DTO DatosConfirmacion

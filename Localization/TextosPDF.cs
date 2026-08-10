@@ -61,7 +61,8 @@ namespace GeneradorVoucher_MP.Localization
                 ["MedioPago"] = "Medio de pago:",
                 ["MedioPagoPendiente"] = "Medio de pago de saldo pendiente:",
                 ["FechaPagoPendiente"] = "Fecha de pago saldo pendiente:",
-                ["ValorEntradasConfirmacion"] = "Valor total de entradas (Deben ser pagadas en efectivo pesos chilenos): CLP $"
+                ["ValorEntradasConfirmacion"] = "Valor total de entradas (Deben ser pagadas en efectivo pesos chilenos): CLP $",
+                ["ResumenPago"] = "RESUMEN DE PAGO"
             },
 
             [IdiomaVoucher.Ingles] = new Dictionary<string, string>
@@ -116,7 +117,8 @@ namespace GeneradorVoucher_MP.Localization
                 ["MedioPago"] = "Payment Method:",
                 ["MedioPagoPendiente"] = "Payment Method for Pending Balance:",
                 ["FechaPagoPendiente"] = "Payment Date for Pending Balance:",
-                ["ValorEntradasConfirmacion"] = "Total value of tickets (Must be paid in cash in Chilean pesos): CLP $"
+                ["ValorEntradasConfirmacion"] = "Total value of tickets (Must be paid in cash in Chilean pesos): CLP $",
+                ["ResumenPago"] = "PAYMENT SUMMARY"
             },
 
             [IdiomaVoucher.Portugues] = new Dictionary<string, string>
@@ -172,7 +174,8 @@ namespace GeneradorVoucher_MP.Localization
                 ["MedioPago"] = "Forma de pagamento:",
                 ["MedioPagoPendiente"] = "Forma de pagamento do saldo pendente:",
                 ["FechaPagoPendiente"] = "Data de pagamento do saldo pendente:",
-                ["ValorEntradasConfirmacion"] = "Valor total dos ingressos (Devem ser pagos em dinheiro em pesos chilenos): CLP $"
+                ["ValorEntradasConfirmacion"] = "Valor total dos ingressos (Devem ser pagos em dinheiro em pesos chilenos): CLP $",
+                ["ResumenPago"] = "RESUMO DE PAGAMENTO"
             }
         };
 
