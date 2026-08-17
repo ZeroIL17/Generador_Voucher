@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GeneradorVoucher_MP.Views.PagAjustes">
+  <Panel>
+
+    <!-- Fondo -->
+    <Image Source="avares://GeneradorVoucher_MP/Assets/foto_mar_personas.jpg"
+           Stretch="UniformToFill"
+           HorizontalAlignment="Stretch"
+           VerticalAlignment="Stretch" />
+    <Border Background="#60000000" />
+
+    <Border VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Background="#F0F4F8"
+            CornerRadius="10"
+            Width="700">
+      <ScrollViewer>
+        <StackPanel Margin="0" Spacing="0">
+
+          <Border Background="#1F4E78"
+                  CornerRadius="10,10,0,0"
+                  Padding="20,14">
+            <Grid ColumnDefinitions="*, Auto">
+              <TextBlock Grid.Column="0"
+                         Text="Ajustes"
+                         FontSize="16"
+                         FontWeight="SemiBold"
+                         Foreground="White"
+                         VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1"
+                         Name="labelUsuario"
+                         FontSize="12"
+                         Foreground="#AAC8E8"
+                         VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+
+          <Border Height="1" Background="#DDDDDD"/>
+          <StackPanel Margin="15" Spacing="12">
+
+            <Border Height="1" Background="#DDDDDD" Margin="0,0,0,0" />
+
+            <!-- Volver -->
+            <Grid ColumnDefinitions="Auto, *, Auto">
+              <Button Grid.Column="0"
+                      Content="← Volver"
+                      Name="btnVolverPagInicio"
+                      Click="btnVolverPagInicio_Click"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Foreground="#1F4E78" />
+            </Grid>
+
+            <!-- Título sección -->
+            <TextBlock Text="TASAS DE CONVERSIÓN"
+                       FontSize="11"
+                       Foreground="#AAAAAA"
+                       LetterSpacing="1.5"
+                       Margin="0,8,0,6" />
+
+            <!-- CLP -> USD -->
+            <StackPanel Orientation="Vertical" Spacing="6">
+              <TextBlock Text="USD → CLP" FontWeight="SemiBold" Foreground="#333333"/>
+              <TextBox Name="txtClpToUsd"
+                       Width="240"
+                       HorizontalAlignment="Left"/>
+            </StackPanel>
+
+            <!-- CLP -> BRL (Real) -->
+            <StackPanel Orientation="Vertical" Spacing="6">
+              <TextBlock Text="BRL → CLP" FontWeight="SemiBold" Foreground="#333333"/>
+              <TextBox Name="txtClpToBrl"
+                       Width="240"
+                       HorizontalAlignment="Left"/>
+            </StackPanel>
+
+            <!-- Botones -->
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
+              <Button Name="btnGuardarAjustes"
+                      Content="Guardar"
+                      Click="btnGuardarAjustes_Click"
+                      Background="#1F4E78"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Padding="8,6"
+                      CornerRadius="8"/>
+              <Button Name="btnRestablecerAjustes"
+                      Content="Restablecer valores"
+                      Click="btnRestablecerAjustes_Click"
+                      Background="White"
+                      Foreground="#1F4E78"
+                      BorderBrush="#DDDDDD"
+                      Padding="8,6"
+                      CornerRadius="8"/>
+            </StackPanel>
+
+            <TextBlock Name="txtStatus"
+                       FontSize="12"
+                       Foreground="#065F46"
+                       Margin="0,8,0,0"/>
+
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+  </Panel>
+</UserControl>

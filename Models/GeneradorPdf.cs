@@ -24,7 +24,7 @@ namespace GeneradorVoucher
 {
     public static class GeneradorPdf
     {
-        public static async Task GenerarReportePDF(string modo, int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, IdiomaVoucher idioma ,Visual visualOrigen, MonedasPago moneda, DatosConfirmacion datosConfirmacion = null)
+        public static async Task GenerarReportePDF(string modo, int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, IdiomaVoucher idioma ,Visual visualOrigen, MonedasPago moneda, DatosConfirmacion? datosConfirmacion = null)
         {
             // 1. Definir la ruta de guardado del PDF (Misma carpeta del programa)
             string nombreArchivo = $"Itinerario_Cliente_{IdActividad}.pdf";
@@ -203,8 +203,8 @@ namespace GeneradorVoucher
                                 // Ajusta las tasas según sea necesario o reemplaza por una fuente real de tipos de cambio.
                                 double tasaClpPorUnidad = moneda switch
                                 {
-                                    MonedasPago.R => 160.0,   // ejemplo: 160 CLP = 1 BRL
-                                    MonedasPago.USD => 850.0, // ejemplo: 800 CLP = 1 USD
+                                    MonedasPago.R => Ajustes.GetAppSettings().ClpToBrl, 
+                                    MonedasPago.USD => Ajustes.GetAppSettings().ClpToUsd, 
                                     _ => 1.0 // CLP$ o desconocido -> 1:1 (no convertir)
                                 };
 
@@ -232,14 +232,6 @@ namespace GeneradorVoucher
 
                                 double subtotalConDescuentoConv = mostrarConversion ? Math.Round(subtotalConDescuentoCLP / tasaClpPorUnidad, 0) : 0;
                                 //double perPersonTotalConDescuentoConv = mostrarConversion ? Math.Round(perPersonTotalConDescuentoCLP / tasaClpPorUnidad, 0) : 0;
-
-                                // Helper para formato con paréntesis en descuentos
-                                static string FormatearMontoCLP(double valor) => valor < 0
-                                    ? $"$({Math.Abs(valor):N0})"
-                                    : $"${valor:N0}";
-
-                                static string FormatearMontoCLPPositivo(double valor, bool usarParentesisParaNegativos = true)
-                                    => valor < 0 ? $"$({Math.Abs(valor):N0})" : $"${valor:N0}";
 
                                 string simboloConv = mostrarConversion ? moneda.ToString() : "";
 

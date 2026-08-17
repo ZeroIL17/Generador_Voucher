@@ -18,7 +18,7 @@
                 Background="#F0F4F8"
                 CornerRadius="10"
                 Width="700">
-            <ScrollViewer Margin="">
+            <ScrollViewer>
             <StackPanel Margin="0" Spacing="0">
 
                 <Border Background="#1F4E78"
@@ -48,15 +48,19 @@
                            LetterSpacing="1.5"
                            Margin="0,0,0,12" />
 
-                <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="12" Margin="0,0,0,24">
-
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="220"
+                  VerticalScrollBarVisibility="Disabled"
+                  Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0">
                     <!-- Nuevo voucher -->
-                    <Button Grid.Column="0"
+                    <Button 
                             Name="btnPaginaCliente"
                             Click="btnPaginaCliente_Click"
                             Background="White"
                             BorderThickness="0"
                             Padding="18"
+                            Width="150"
+                            Height="200"
                             CornerRadius="12"
                             HorizontalContentAlignment="Stretch"
                             VerticalContentAlignment="Stretch"
@@ -95,11 +99,13 @@
                     </Button>
 
                     <!-- Modificar voucher -->
-                    <Button Grid.Column="1"
+                    <Button 
                             Name="btnModificarVoucher"
                             Click="btnModificarVoucher_Click"
                             Background="White"
                             BorderThickness="0"
+                            Width="150"
+                            Height="200"
                             Padding="18"
                             CornerRadius="12"
                             HorizontalContentAlignment="Stretch"
@@ -139,11 +145,13 @@
                     </Button>
 
                     <!-- Confirmación voucher -->
-                    <Button Grid.Column="2"
+                    <Button 
                             Name="btnPaginaConfirmacion"
                             Click="btnPaginaConfirmacion_Click"
                             Background="White"
                             BorderThickness="0"
+                            Height="200"
+                            Width="150"
                             Padding="18"
                             CornerRadius="12"
                             HorizontalContentAlignment="Stretch"
@@ -183,12 +191,14 @@
                     </Button>
 
                     <!-- Exportar registros -->
-                    <Button Grid.Column="3"
+                    <Button 
                             Name="btnExportarDatos"
                             Click="btnExportarDatos_Click"
                             Background="White"
                             BorderThickness="0"
                             Padding="18"
+                            Height="200"
+                            Width="150"
                             CornerRadius="12"
                             HorizontalContentAlignment="Stretch"
                             VerticalContentAlignment="Stretch"
@@ -226,7 +236,53 @@
                         </StackPanel>
                     </Button>
 
-                </Grid>
+                    <!-- Ajustes -->
+                    <Button 
+                            Name="btnAjustes"
+                            Background="White"
+                            Click="btnAjustes_Click"
+                            BorderThickness="0"
+                            Height="200"
+                            Padding="18"
+                            Width="150"
+                            CornerRadius="12"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                             VerticalAlignment="Top"
+                            Cursor="Hand">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#F0F4F8" />
+                            </Style>
+                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#EDE9FE" />
+                            </Style>
+                        </Button.Styles>
+                        <StackPanel Spacing="10">
+                            <Border Width="44" Height="44" CornerRadius="10"
+                                    Background="#DBEAFE" HorizontalAlignment="Left">
+                                <PathIcon Data="{StaticResource settings_regular}"
+                                            Width="20" Height="20"
+                                            Foreground="#1F4E78"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Ajustes"
+                                       TextWrapping="Wrap"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="#1F4E78" />
+                            <TextBlock Text="Actualizar tasas de conversión"
+                                        FontSize="11"
+                                        Foreground="#888888"
+                                        TextWrapping="Wrap" />
+                            <TextBlock Text="Abrir →"
+                                        FontSize="12"
+                                        Foreground="#1F4E78" />
+                        </StackPanel>
+                    </Button>
+                    </StackPanel>
+                </ScrollViewer>
                 <Border Height="1" Background="#DDDDDD" Margin="0,0,0,20" />
                     <Grid ColumnDefinitions="Auto, *, Auto">
                         <Button Grid.Column="0"

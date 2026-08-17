@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -9,11 +10,12 @@ using GeneradorVoucher_MP.Enums;
 using GeneradorVoucher_MP.Models;
 using GeneradorVoucher_MP.Views;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GeneradorVoucher_MP;
@@ -131,61 +133,72 @@ public partial class PagModificar : UserControl
 
     private async void btnActualizarVoucher_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (cmbVoucherCreados.SelectedItem is not VoucherLookup voucherSeleccionado)
-        {
-            this.MostrarAlerta("Error", "Por favor, seleccione un voucher para modificar.", NotificationType.Error);
-            return;
-        }
-
-        textNombreClienteModificar.RestaurarEstilo();
-
-        // 2. Validar campos requeridos mínimos
-        if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text) ||
-            string.IsNullOrWhiteSpace(textTelefonoModificar.Text) ||
-            textFechaInicioModificar.SelectedDate == null ||
-            textAdultosModificar.Value < 1 || textAdultosModificar.Value is null)
-        {
-            this.MostrarAlerta("Campos Incompletos", "Por favor, complete todos los campos del cliente antes de guardar.", NotificationType.Warning);
-            if (textAdultosModificar.Value < 1 || textAdultosModificar.Value is null) textAdultosModificar.MarcarError();
-            if (string.IsNullOrWhiteSpace(textTelefonoModificar.Text)) textTelefonoModificar.MarcarError();
-            if (textFechaInicioModificar.SelectedDate == null) textFechaInicioModificar.MarcarError();
-            if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text)) textNombreClienteModificar.MarcarError();
-
-            return;
-        }
-
-        if (actividadesMostradas.Count == 0)
-        {
-            this.MostrarAlerta("Sin Actividades", "Por favor, agrega al menos una actividad antes de guardar.", NotificationType.Warning);
-            return;
-        }
-
-        if (!double.TryParse(textDescuentoModificar.Text, out double descuento) || descuento < 0 || descuento > 100)
-        {
-            this.MostrarAlerta("Descuento Inválido", "Por favor, ingresa un valor de descuento válido entre 0 y 100.", NotificationType.Warning);
-            textDescuentoModificar.MarcarError();
-            return;
-        }
-        else if (string.IsNullOrWhiteSpace(textDescuentoModificar.Text))
-        {
-            descuento = 0;
-        }
-
-        foreach (var act in actividadesMostradas)
-        {
-            if (act.FechaActividad == null || act.FechaActividad == DateTime.MinValue)
-            {
-                this.MostrarAlerta("Falta Información",
-                                   $"Por favor, asigna una fecha válida al servicio: '{act.TipoActividad}'.",
-                                   NotificationType.Warning);
-                return; // Detiene la ejecución completa del guardado
-            }
-
-            act.DescuentoActividad = (float)descuento;
-        }
+        this.Focus();
 
         try
         {
+            if (cmbVoucherCreados.SelectedItem is not VoucherLookup voucherSeleccionado)
+            {
+                this.MostrarAlerta("Error", "Por favor, seleccione un voucher para modificar.", NotificationType.Error);
+                return;
+            }
+
+            textNombreClienteModificar.RestaurarEstilo();
+
+            // 2. Validar campos requeridos mínimos
+            if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text) ||
+                string.IsNullOrWhiteSpace(textTelefonoModificar.Text) ||
+                textFechaInicioModificar.SelectedDate == null ||
+                textAdultosModificar.Value < 1 || textAdultosModificar.Value is null)
+            {
+                this.MostrarAlerta("Campos Incompletos", "Por favor, complete todos los campos del cliente antes de guardar.", NotificationType.Warning);
+                if (textAdultosModificar.Value < 1 || textAdultosModificar.Value is null) textAdultosModificar.MarcarError();
+                if (string.IsNullOrWhiteSpace(textTelefonoModificar.Text)) textTelefonoModificar.MarcarError();
+                if (textFechaInicioModificar.SelectedDate == null) textFechaInicioModificar.MarcarError();
+                if (string.IsNullOrWhiteSpace(textNombreClienteModificar.Text)) textNombreClienteModificar.MarcarError();
+
+                return;
+            }
+
+            if (actividadesMostradas.Count == 0)
+            {
+                this.MostrarAlerta("Sin Actividades", "Por favor, agrega al menos una actividad antes de guardar.", NotificationType.Warning);
+                return;
+            }
+
+            if (!double.TryParse(textDescuentoModificar.Text, out double descuento) || descuento < 0 || descuento > 100)
+            {
+                this.MostrarAlerta("Descuento Inválido", "Por favor, ingresa un valor de descuento válido entre 0 y 100.", NotificationType.Warning);
+                textDescuentoModificar.MarcarError();
+                return;
+            }
+            else if (string.IsNullOrWhiteSpace(textDescuentoModificar.Text))
+            {
+                descuento = 0;
+            }
+
+            foreach (var act in actividadesMostradas)
+            {
+                // validar que los valores de adultos y niños sean números válidos y double
+                if (!double.TryParse(act.PrecioTourAdulto.ToString(), out double precioAdulto) || precioAdulto < 0
+                    || !double.TryParse(act.PrecioTourNino.ToString(), out double precioNino) || precioNino < 0
+                    || !double.TryParse(act.PrecioEntrada.ToString(), out double precioEntrada) || precioEntrada < 0)
+                {
+                    this.MostrarAlerta("Precio Inválido", $"El precio no es válido.", NotificationType.Warning);
+                    return; // Detiene la ejecución completa del guardado
+                }
+
+                if (act.FechaActividad == null || act.FechaActividad == DateTime.MinValue)
+                {
+                    this.MostrarAlerta("Falta Información",
+                                       $"Por favor, asigna una fecha válida al servicio: '{act.TipoActividad}'.",
+                                       NotificationType.Warning);
+                    return; // Detiene la ejecución completa del guardado
+                }
+                
+                act.DescuentoActividad = (float)descuento;
+            }
+
             IdiomaVoucher idiomaSeleccionado;
             if (cmbIdiomaVoucherModificar.SelectedValue is IdiomaOpcion idiomaOpcion)
             {
@@ -223,6 +236,11 @@ public partial class PagModificar : UserControl
 
             await CargarVouchers();
             this.IrPagina(new PagPrincipal());
+        }
+        catch (InvalidCastException)
+        {
+            this.MostrarAlerta("Error", "Hay valores inválidos en la tabla. Corrija las celdas con formato incorrecto antes de continuar.", NotificationType.Error);
+            return;
         }
         catch (Exception ex)
         {

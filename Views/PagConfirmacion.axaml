@@ -377,6 +377,7 @@
                                 Foreground="White"
                                  />
                         <ComboBox Grid.Column="4"
+                                  IsEnabled="False"
                                   Name="cmbMonedaSelect"
                                   SelectedIndex="0"
                                   Width="85"

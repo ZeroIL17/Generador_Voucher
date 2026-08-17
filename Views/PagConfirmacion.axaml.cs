@@ -15,10 +15,9 @@ namespace GeneradorVoucher_MP.Views
 {
     public partial class PagConfirmacion : UserControl
     {
+        private double totalTour = 0;
         private readonly ObservableCollection<VoucherLookup> vouchersDisponibles = new();
         private readonly ObservableCollection<DatosActividad> actividadesMostradas = new();
-
-
         public ObservableCollection<VoucherLookup> VouchersDisponibles => vouchersDisponibles;
         public ObservableCollection<DatosActividad> DatosActividades => actividadesMostradas;
         public ObservableCollection<MediosPago> MediosPagoDisponibles { get; } = new ObservableCollection<MediosPago>
@@ -116,18 +115,18 @@ namespace GeneradorVoucher_MP.Views
             double totalAdultos = 0;
             double totalNinos = 0;
             double totalEntradas = 0;
-            double totalGeneral = 0;
 
             foreach (var actividad in actividadesMostradas)
             {
                 totalAdultos += actividad.PrecioTourAdulto * cliente.CantidadAdultosCliente;
                 totalNinos += actividad.PrecioTourNino * cliente.CantidadNinosCliente;
                 totalEntradas += actividad.PrecioEntrada * (cliente.CantidadAdultosCliente + cliente.CantidadNinosCliente);
-                totalGeneral += totalAdultos + totalNinos + totalEntradas;
+                
             }
 
             double descuento = (totalNinos + totalAdultos) * actividadesMostradas[0].DescuentoActividad / 100;
-            double totalTour = totalAdultos + totalNinos - descuento;
+            totalTour = totalAdultos + totalNinos - descuento;
+            double totalGeneral = totalAdultos + totalNinos + totalEntradas;
 
             textValorTotalAdultos.Text = totalAdultos.ToString("N0");
             textValorTotalNinos.Text = totalNinos.ToString("N0");
@@ -135,6 +134,7 @@ namespace GeneradorVoucher_MP.Views
             textValorTotalTour.Text = totalTour.ToString("N0");
             textDescuento.Text = descuento.ToString("N0");
             textValorTotalVoucher.Text = (totalGeneral - descuento).ToString("N0");
+            Debug.WriteLine($"Total Adultos: {totalAdultos}, Total Niños: {totalNinos}, Total Entradas: {totalEntradas}, Total General: {totalGeneral}, Descuento: {descuento}, Total Tour: {totalTour}");
         }
 
         private void SetInputEnabled(bool fieldState)
@@ -152,7 +152,6 @@ namespace GeneradorVoucher_MP.Views
                 this.MostrarAlerta("Error", "Debe seleccionar un voucher para confirmar.", NotificationType.Error);
                 return;
             }
-            ;
 
             if (cmbMedioPagoConfirmacion.SelectedItem is null
                 || !double.TryParse(textMontoAbonoConfirmacion.Text, out double montoAbono)
@@ -164,14 +163,14 @@ namespace GeneradorVoucher_MP.Views
                 return;
             }
 
-            if (montoAbono > double.Parse(textValorTotalTour.Text))
+            if (montoAbono > totalTour)
             {
                 this.MostrarAlerta("Error", "El monto del abono no puede ser mayor al valor total del voucher.", NotificationType.Error);
                 return;
             }
 
             else if (textFechaPagoSaldoConfirmacion.SelectedDate is null &&
-                montoAbono != double.Parse(textValorTotalTour.Text))
+                montoAbono != totalTour)
             {
                 this.MostrarAlerta("Error", "Debe ingresar la fecha de pago del saldo.", NotificationType.Error);
                 return;
@@ -203,7 +202,7 @@ namespace GeneradorVoucher_MP.Views
 
                 var (datosClientes, datosActividades) = App.RegistrosService.ObtenerDetalleVoucher(idSeleccionado);
 
-                double saldoPendiente = double.Parse(textValorTotalTour.Text) - montoAbono;
+                double saldoPendiente = totalTour - montoAbono;
 
                 DatosConfirmacion datosConfirmacion = new DatosConfirmacion
                 {
