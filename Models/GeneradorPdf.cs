@@ -127,13 +127,20 @@ namespace GeneradorVoucher
 
                             subColumn.Item().Row(r =>
                             {
-                                r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "CantidadNinos")}: {datosClientes.CantidadNinosCliente}");
+                                if (datosClientes.CantidadNinosCliente > 0)
+                                {
+                                    r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "CantidadNinos")}: {datosClientes.CantidadNinosCliente}");
+                                }
+                                else
+                                {
+                                    r.RelativeItem().Text("");
+                                }
                                 r.RelativeItem().Text($"{LocalizadorPdf.ObtenerIdioma(idioma, "Telefono")}: {datosClientes.TelefonoCliente}");
                             });
                         });
 
-                        column.Item().PaddingTop(0.5f, Unit.Centimetre);
-                        column.Item().PaddingLeft(15).Text(LocalizadorPdf.ObtenerIdioma(idioma, "TituloActividad")).Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                        //column.Item().PaddingTop(0.5f, Unit.Centimetre);
+                        //column.Item().PaddingLeft(15).Text(LocalizadorPdf.ObtenerIdioma(idioma, "TituloActividad")).Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
                         column.Item().PaddingTop(5);
 
                         // TABLA 
@@ -149,7 +156,10 @@ namespace GeneradorVoucher
                                 columns.RelativeColumn(3); // Servicio Incluido
                                 columns.RelativeColumn(2); // Precio Entrada
                                 columns.RelativeColumn(2); // Precio Tour Adulto
-                                columns.RelativeColumn(2); // Precio Tour Niño
+                                if (datosClientes.CantidadNinosCliente > 0)
+                                {
+                                    columns.RelativeColumn(2); // Precio Tour Niño
+                                }
                             });
 
                             // Encabezados de la tabla
@@ -162,7 +172,10 @@ namespace GeneradorVoucher
                                 header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "IncluyeActividad")).Bold().FontColor(Colors.White);
                                 header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioEntrada")).Bold().FontColor(Colors.White);
                                 header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioTourAdulto")).Bold().FontColor(Colors.White);
-                                header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioTourNino")).Bold().FontColor(Colors.White);
+                                if (datosClientes.CantidadNinosCliente > 0)
+                                {
+                                    header.Cell().Background("#1F4E78").Padding(5).Text(LocalizadorPdf.ObtenerIdioma(idioma, "PrecioTourNino")).Bold().FontColor(Colors.White);
+                                }
                             });
 
                             // Filas de datos
@@ -178,7 +191,10 @@ namespace GeneradorVoucher
                                 table.Cell().Element(CellStyle).Text(actividad.IncluyeActividad ?? "");
                                 table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioEntrada:N0}");
                                 table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioTourAdulto:N0}");
-                                table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioTourNino:N0}");
+                                if (datosClientes.CantidadNinosCliente > 0)
+                                {
+                                    table.Cell().Element(CellStyle).AlignRight().Text($"${actividad.PrecioTourNino:N0}");
+                                }
                             }
 
                             static IContainer CellStyle(IContainer container)
