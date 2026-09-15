@@ -30,7 +30,7 @@ namespace GeneradorVoucher
             string nombreArchivo = $"Itinerario_Cliente_{IdActividad}.pdf";
 
             // crear carpeta para guardar los PDF si no existe
-            string carpetaPdf = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
+            string carpetaPdf = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"GeneradorVoucher", "PDFs");
             if (!Directory.Exists(carpetaPdf))
             {
                 Directory.CreateDirectory(carpetaPdf);

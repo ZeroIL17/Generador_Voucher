@@ -26,6 +26,8 @@ namespace GeneradorVoucher_MP.Models
 
         private readonly string rutaArchivo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Registro_Cotizaciones.xlsx");
         readonly string rutaCarpetaDirectorio = AppDomain.CurrentDomain.BaseDirectory;
+        readonly string rutaCarpetaExport = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GeneradorVoucher");
+
 
         public ManejoRegistros(string password)
         {
@@ -49,7 +51,7 @@ namespace GeneradorVoucher_MP.Models
 
         public void AbrirRegistros()
         {
-            if (!Directory.Exists(rutaCarpetaDirectorio))
+            if (!Directory.Exists(rutaCarpetaExport))
             {
                 throw new DirectoryNotFoundException("No se pudo localizar la carpeta de la aplicación.");
             }
@@ -61,19 +63,19 @@ namespace GeneradorVoucher_MP.Models
             {
                 // Comando nativo para Windows (Explorador de archivos)
                 info.FileName = "explorer.exe";
-                info.Arguments = $"\"{rutaCarpetaDirectorio}\""; // Las comillas evitan errores si la ruta tiene espacios
+                info.Arguments = $"\"{rutaCarpetaExport}\""; // Las comillas evitan errores si la ruta tiene espacios
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 // Comando nativo para macOS (Finder)
                 info.FileName = "open";
-                info.Arguments = $"\"{rutaCarpetaDirectorio}\"";
+                info.Arguments = $"\"{rutaCarpetaExport}\"";
             }
             else
             {
                 // Opcional: Soporte por si acaso el sistema corre en Linux en el futuro
                 info.FileName = "xdg-open";
-                info.Arguments = $"\"{rutaCarpetaDirectorio}\"";
+                info.Arguments = $"\"{rutaCarpetaExport}\"";
             }
 
             // 3. Ejecutar el proceso de forma segura sin abrir consolas negras de fondo
@@ -538,7 +540,7 @@ namespace GeneradorVoucher_MP.Models
             string nombreArchivoExportado = $"PlanillaViajes_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
             // crear carpeta para guardar los export 
-            string carpetaExport = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Export");
+            string carpetaExport = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"GeneradorVoucher", "Export");
             if (!Directory.Exists(carpetaExport))
             {
                 Directory.CreateDirectory(carpetaExport);
