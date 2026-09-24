@@ -26,6 +26,11 @@ namespace GeneradorVoucher
     {
         public static async Task GenerarReportePDF(string modo, int IdActividad, DatosCliente datosClientes, IEnumerable<DatosActividad> actividades, IdiomaVoucher idioma ,Visual visualOrigen, MonedasPago moneda, DatosConfirmacion? datosConfirmacion = null)
         {
+            var actividadesSorted = (actividades ?? Enumerable.Empty<DatosActividad>())
+                .OrderBy(a => a.FechaActividad ?? DateTime.MaxValue)
+                .ThenBy(a => a.PickupActividad ?? string.Empty)
+                .ToList();
+
             // 1. Definir la ruta de guardado del PDF (Misma carpeta del programa)
             string nombreArchivo = $"Itinerario_Cliente_{IdActividad}.pdf";
 
@@ -42,10 +47,10 @@ namespace GeneradorVoucher
 
             // Calcular el total general sumando el valor base más los subtotales de las actividades
             int totalPasajeros = (int)datosClientes.CantidadAdultosCliente + (int)datosClientes.CantidadNinosCliente;
-            double totalEntrada = actividades.Sum(a => a.PrecioEntrada * totalPasajeros);
-            double totalTour = actividades.Sum(a => (int)datosClientes.CantidadAdultosCliente * a.PrecioTourAdulto + (int)datosClientes.CantidadNinosCliente * a.PrecioTourNino);
+            double totalEntrada = actividadesSorted.Sum(a => a.PrecioEntrada * totalPasajeros);
+            double totalTour = actividadesSorted.Sum(a => (int)datosClientes.CantidadAdultosCliente * a.PrecioTourAdulto + (int)datosClientes.CantidadNinosCliente * a.PrecioTourNino);
             double subtotal = totalEntrada + totalTour;
-            double porcentajeDescuento = actividades.ElementAt(0).DescuentoActividad / 100;
+            double porcentajeDescuento = actividadesSorted.ElementAt(0).DescuentoActividad / 100;
             double descuento = porcentajeDescuento * totalTour;
             double tourConDescuento = totalTour - descuento;
             double total = subtotal - descuento;
@@ -179,7 +184,7 @@ namespace GeneradorVoucher
                             });
 
                             // Filas de datos
-                            foreach (var actividad in actividades)
+                            foreach (var actividad in actividadesSorted)
                             {
                                 // Evitar acceso directo a .Value de DateTime? y proteger referencias que pueden ser null
                                 string fechaText = actividad.FechaActividad?.ToString("dd/MM/yyyy") ?? "";
@@ -541,7 +546,11 @@ namespace GeneradorVoucher
 
                     if (deseaAbrir && File.Exists(rutaPdf))
                     {
-                        OpenFileCrossPlatform(rutaPdf);
+                        // Esperar brevemente a que el archivo quede realmente liberado en disco
+                        await WaitForFileUnlockAsync(rutaPdf, 5000);
+
+                        // Lanzar el visor de PDF en un hilo de fondo para no bloquear la UI
+                        _ = Task.Run(() => OpenFileCrossPlatform(rutaPdf));
                     }
                 }
             }
@@ -562,25 +571,60 @@ namespace GeneradorVoucher
             }
             catch
             {
-                // Fallbacks explícitos
-                if (OperatingSystem.IsMacOS())
+                // Fallbacks explícitos (lanzar de forma desacoplada para evitar bloquear)
+                try
                 {
-                    Process.Start("open", path);
+                    if (OperatingSystem.IsMacOS())
+                    {
+                        Process.Start(new ProcessStartInfo("open", $"\"{path}\"") { UseShellExecute = false, CreateNoWindow = true });
+                    }
+                    else if (OperatingSystem.IsLinux())
+                    {
+                        // Ejecutar xdg-open en background para evitar bloqueo en algunas distribuciones
+                        Process.Start(new ProcessStartInfo("bash", $"-c \"xdg-open '{path}' > /dev/null 2>&1 &\"") { UseShellExecute = false, CreateNoWindow = true });
+                    }
+                    else if (OperatingSystem.IsWindows())
+                    {
+                        var psi = new ProcessStartInfo(path) { UseShellExecute = true };
+                        Process.Start(psi);
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-                else if (OperatingSystem.IsLinux())
+                catch (Exception inner)
                 {
-                    Process.Start("xdg-open", path);
-                }
-                else if (OperatingSystem.IsWindows())
-                {
-                    var psi = new ProcessStartInfo(path) { UseShellExecute = true };
-                    Process.Start(psi);
-                }
-                else
-                {
-                    throw;
+                    Console.WriteLine($"No se pudo abrir el archivo con los métodos disponibles: {inner.Message}");
                 }
             }
+        }
+
+        private static async Task WaitForFileUnlockAsync(string path, int timeoutMs = 5000)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (sw.ElapsedMilliseconds < timeoutMs)
+            {
+                try
+                {
+                    // Intentar abrir el archivo exclusivamente. Si tiene éxito, está libre.
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
+                    {
+                        return;
+                    }
+                }
+                catch (IOException)
+                {
+                    // Archivo aún bloqueado por otro proceso; esperar un poco y reintentar
+                    await Task.Delay(150);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // En caso de permisos, romper y no seguir esperando
+                    return;
+                }
+            }
+            // Tiempo de espera excedido; continuar de todos modos
         }
     }
 }

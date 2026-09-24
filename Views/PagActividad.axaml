@@ -68,11 +68,13 @@
                     <Border Grid.Column="0"
                             BorderThickness="0,0,1,0"
                             BorderBrush="#DDDDDD"
+                            VerticalAlignment="Stretch"
                             Padding="20">
 
                         <Grid ColumnDefinitions="Auto, *"
                               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                               RowSpacing="8"
+                              VerticalAlignment="Stretch"
                               ColumnSpacing="10">
 
                             <TextBlock Grid.Column="0" Grid.Row="0" Text="Fecha" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
@@ -222,6 +224,28 @@
                                     <DataGridTextColumn Header="Precio Niño"
                                                         Binding="{Binding PrecioTourNino, StringFormat=\{0:C0\}}"
                                                         Width="Auto" />
+                                    <DataGridTemplateColumn Header="" Width="44" CanUserResize="False">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="6"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        ToolTip.Tip="Eliminar fila"
+                                                        Click="btnEliminarFila_Click">
+                                                    <Button.Styles>
+                                                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                            <Setter Property="Background" Value="#FEE2E2" />
+                                                        </Style>
+                                                    </Button.Styles>
+                                                    <PathIcon Data="{StaticResource delete_regular}"
+                                                              Width="14" Height="14"
+                                                              Foreground="#DC2626" />
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

@@ -289,4 +289,14 @@ public partial class PagActividad : UserControl
             cmbIdiomaVoucherActividad.IsEnabled = true;
         }
     }
+
+    private void btnEliminarFila_Click(object sender, RoutedEventArgs e)
+    {
+        // DataContext del botón = el objeto de esa fila
+        var boton = sender as Button;
+        var fila = boton?.DataContext as DatosActividad; // tu clase modelo
+
+        if (fila != null)
+            DatosActividades.Remove(fila);
+    }
 }

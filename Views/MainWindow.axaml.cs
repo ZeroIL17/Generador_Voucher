@@ -23,7 +23,7 @@ namespace AvaloniaApplication1.Views
                 if (pantalla != null)
                 {
                     double escala = pantalla.Scaling;
-                    this.Width = (pantalla.WorkingArea.Width * 0.7) / escala;
+                    this.Width = (pantalla.WorkingArea.Width * 0.8) / escala;
                     this.Height = this.Width * (RatioAlto / RatioAncho); // altura derivada del ancho
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 }
